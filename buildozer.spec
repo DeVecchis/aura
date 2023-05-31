@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3, kivy, kivy==2.0.0rc3,https://github.com/kivymd/KivyMD/archive/master.zip, pyaudio, SpeechRecognition, pyttsx3, socketio
+requirements = python3, kivy==2.0.0rc3,https://github.com/kivymd/KivyMD/archive/master.zip, pyaudio, SpeechRecognition, pyttsx3, socketio
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -311,7 +311,6 @@ p4a.branch = develop
 
 # (str) Filename to the hook for p4a
 #p4a.hook =
-*.md
 # (str) Bootstrap to use for android builds
 # p4a.bootstrap = sdl2
 
