@@ -1,7 +1,7 @@
 [app]
 
 # (str) Nome dell'app
-title = NomeApp
+title = Aura
 
 # (str) Package dell'app
 package.name = aura
