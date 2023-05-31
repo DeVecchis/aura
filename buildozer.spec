@@ -47,6 +47,4 @@ log_level = 2
 
 # (list) Configurazione aggiuntiva per Android
 android.permissions = INTERNET, RECORD_AUDIO
-android.api = 29
-android.sdk = 29
 android.ndk = 25.0.7075529
