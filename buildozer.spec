@@ -13,7 +13,6 @@ version = 0.1.0
 description = Descrizione dell'app
 
 # (str) Icona dell'app (deve essere un file PNG e rispettare le dimensioni richieste)
-icon.filename = path_all'icon.png
 
 # (str) Directory principale dell'app
 source.dir = .
