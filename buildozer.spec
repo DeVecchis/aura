@@ -8,7 +8,7 @@ package.name = aura
 
 # (str) Versione dell'app
 package.version = 0.1
-version = 0.1.0
+version = 0.1
 # (str) Descrizione dell'app
 description = Descrizione dell'app
 
@@ -19,9 +19,8 @@ source.dir = .
 
 # (list) Elenco di tutti i file da includere nell'app
 source.include_exts = py,png,jpg,kv,atlas
-android.ndk_path = /home/riccardo/android-ndk-r25c
 # (list) Elenco di tutti i moduli da includere nell'app
-source.include_patterns = assets/*,images/*.png,fonts/*
+#source.include_patterns = assets/*,images/*.png,fonts/*
 
 # (list) Elenco di tutti i moduli da escludere dall'app
 source.exclude_patterns = tests/*,venv/*,.git/*,buildozer.spec,*.md,*.pyc,*__pycache__/*
@@ -31,14 +30,15 @@ source.main_python_file = aura.py
 
 # (list) Elenco di dipendenze esterne
 requirements = python3, kivy, kivymd, pyaudio, SpeechRecognition, pyttsx3, socketio
-
-
+osx.python_version = 3
+osx.kivy_version = 2.0.0
+android.archs = arm64-v8a, armeabi-v7a
 # (str) Imposta l'orientamento predefinito dell'app (portrait, landscape, all)
 orientation = portrait
-
+[buildozer]
 # (bool) Abilita il debug
 log_level = 2
-
+warn_on_root = 1
 # (str) URL dell'API di buildozer (non modificare)
 #buildozer.url = https://github.com/kivy/buildozer/archive/master.zip
 
