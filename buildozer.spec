@@ -19,7 +19,7 @@ source.dir = .
 
 # (list) Elenco di tutti i file da includere nell'app
 source.include_exts = py,png,jpg,kv,atlas
-
+android.ndk_path = /home/riccardo/android-ndk-r21d
 # (list) Elenco di tutti i moduli da includere nell'app
 source.include_patterns = assets/*,images/*.png,fonts/*
 
