@@ -24,7 +24,7 @@ source.include_exts = py,png,jpg,kv,atlas
 source.include_patterns = assets/*,images/*.png,fonts/*
 
 # (list) Elenco di tutti i moduli da escludere dall'app
-source.exclude_patterns = tests/*,venv/*,.git/*,buildozer.spec,*.pyc,*__pycache__/*
+source.exclude_patterns = tests/*,venv/*,.git/*,buildozer.spec,*.md,*.pyc,*__pycache__/*
 
 # (str) Nome del file principale da eseguire
 source.main_python_file = aura.py
@@ -52,4 +52,3 @@ android.sdk = 29
 android.ndk = 21.4.7075529
 android.gradle_dependencies = com.android.support:support-annotations:28.0.0, com.android.support:support-v4:28.0.0, com.android.support:appcompat-v7:28.0.0, com.android.support:design:28.0.0, com.google.firebase:firebase-analytics:17.2.2, com.google.firebase:firebase-messaging:20.2.4, com.google.firebase:firebase-crashlytics:17.0.1, com.google.firebase:firebase-perf:19.0.3, com.crashlytics.sdk.android:crashlytics:2.10.1
 android.gradle_add_repo = 'maven { url "https://jitpack.io" }'
-android.gradle_plugins = '
