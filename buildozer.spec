@@ -4,7 +4,7 @@
 title = NomeApp
 
 # (str) Package dell'app
-package.name = nomeapp
+package.name = aura
 
 # (str) Versione dell'app
 package.version = 0.1
