@@ -29,7 +29,7 @@ source.exclude_patterns = tests/*,venv/*,.git/*,buildozer.spec,*.md,*.pyc,*__pyc
 source.main_python_file = aura.py
 
 # (list) Elenco di dipendenze esterne
-requirements = python3, kivy, kivymd, pyaudio, SpeechRecognition, pyttsx3, socketio
+requirements = python3, kivy, kivy==2.0.0rc3,https://github.com/kivymd/KivyMD/archive/master.zip, pyaudio, SpeechRecognition, pyttsx3, socketio
 osx.python_version = 3
 osx.kivy_version = 2.0.0
 android.archs = arm64-v8a, armeabi-v7a
@@ -48,4 +48,3 @@ warn_on_root = 1
 # (list) Configurazione aggiuntiva per Android
 android.permissions = INTERNET, RECORD_AUDIO
 android.api = 30
-android.ndk = 25.0.7075529
