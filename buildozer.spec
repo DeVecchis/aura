@@ -43,8 +43,9 @@ log_level = 2
 #buildozer.url = https://github.com/kivy/buildozer/archive/master.zip
 
 # (str) Versione di buildozer da utilizzare (opzionale, se specificato buildozer.url verrà ignorato)
-#buildozer.version = 1.2.0
+#buildozer.version = 1.5.1
 
 # (list) Configurazione aggiuntiva per Android
 android.permissions = INTERNET, RECORD_AUDIO
+android.api = 30
 android.ndk = 25.0.7075529
