@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy==2.0.0rc4,https://github.com/kivymd/KivyMD/archive/master.zip, SpeechRecognition, pyttsx3, socketio
+requirements = python3,kivy==2.2.0,https://github.com/kivymd/KivyMD/archive/master.zip, SpeechRecognition, pyttsx3, socketio
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -66,7 +66,7 @@ orientation = portrait
 osx.python_version = 3
 
 # Kivy version to use
-osx.kivy_version = 2.0.0
+osx.kivy_version = 2.2.0
 
 #
 # Android specific
