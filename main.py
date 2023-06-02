@@ -49,9 +49,6 @@ class AuraApp(MDApp):
             time.sleep(1)
         # Avvia l'activity di riconoscimento vocale
         r = self.android_activity.startActivityForResult(intent, 0)
-        print(r)
-        print(type(r))
-        print(r.__dict__)
         time.sleep(10)
         print("------------------------------------------")
         print("provo a ripetere la cosa ma con 1:")
