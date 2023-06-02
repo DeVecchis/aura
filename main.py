@@ -1,12 +1,11 @@
+from jnius import autoclass
 from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
 from kivymd.app import MDApp
 from threading import Thread
-from jnius import autoclass
-import socketio
 import time
-import requests
-import json
-import pyttsx3
+import socketio
 
 sio = socketio.Client()
 
@@ -36,13 +35,12 @@ class AuraApp(MDApp):
         return kv
 
     def listen_for_speech(self):
-        while True:
-            # Avvia l'activity di riconoscimento vocale
-            intent = autoclass('android.speech.RecognizerIntent')()
-            intent.putExtra(autoclass('android.speech.RecognizerIntent').EXTRA_LANGUAGE_MODEL,
-                            autoclass('android.speech.RecognizerIntent').LANGUAGE_MODEL_FREE_FORM)
-            intent.putExtra(autoclass('android.speech.RecognizerIntent').EXTRA_LANGUAGE, 'it-IT')
-            self.android_activity.startActivityForResult(intent, 0)
+        intent = autoclass('android.content.Intent')()
+        intent.setAction("android.speech.action.RECOGNIZE_SPEECH")
+        intent.putExtra("android.speech.extra.LANGUAGE_MODEL", "free_form")
+
+        # Avvia l'activity di riconoscimento vocale
+        self.android_activity.startActivityForResult(intent, 0)
 
     def on_speech_result(self, requestCode, resultCode, data):
         if resultCode == self.android_activity.RESULT_OK:
@@ -53,6 +51,9 @@ class AuraApp(MDApp):
             if results:
                 transcription = results.get(0)
                 print(transcription)
+
+                # Stampa il testo riconosciuto
+                print("Testo riconosciuto:", transcription)
 
                 # Dividi la trascrizione in parole
                 words = transcription.split()
