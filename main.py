@@ -92,3 +92,10 @@ class AuraApp(MDApp):
                 self.last_word_time = current_time
 
     @staticmethod
+    @sio.on('response')
+    def receive_response(response):
+        print("Risposta dal server:", response)
+
+if __name__ == "__main__":
+    sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
+    AuraApp().run()
