@@ -1,4 +1,4 @@
-from jnius import autoclass, cast, PythonJavaClass, java_method
+from jnius import autoclass, cast
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -8,21 +8,6 @@ import time
 import socketio
 
 sio = socketio.Client()
-
-class SpeechRecognitionListener(PythonJavaClass):
-    __javainterfaces__ = ['android/speech/RecognitionListener']
-
-    def __init__(self, callback):
-        super(SpeechRecognitionListener, self).__init__()
-        self.callback = callback
-
-    @java_method('(I)V')
-    def onResults(self, requestCode, resultCode, data):
-        results = data.getStringArrayListExtra('android.speech.extra.RESULTS')
-        if results:
-            transcription = results.get(0)
-            self.callback(transcription)
-
 
 class AuraApp(MDApp):
     def build(self):
@@ -42,6 +27,9 @@ class AuraApp(MDApp):
         PythonActivity = autoclass('org.kivy.android.PythonActivity')
         self.android_activity = PythonActivity.mActivity
 
+        # Sovrascrivi il metodo onActivityResult per gestire la risposta del riconoscimento vocale
+        PythonActivity.mActivity.onActivityResult = self.on_activity_result
+
         # Avvia il riconoscimento vocale in un thread separato
         thread = Thread(target=self.listen_for_speech)
         thread.daemon = True
@@ -50,46 +38,68 @@ class AuraApp(MDApp):
         return kv
 
     def listen_for_speech(self):
-        speech_recognizer = autoclass('android.speech.SpeechRecognizer').createSpeechRecognizer(
-            self.android_activity)
-        recognition_listener = SpeechRecognitionListener(self.on_speech_result)
-        speech_recognizer.setRecognitionListener(recognition_listener)
-
-        intent = autoclass('android.content.Intent').setAction('android.speech.action.RECOGNIZE_SPEECH')
-        self.android_activity.startActivityForResult(intent, 0)
-
+        intent = autoclass('android.content.Intent')()
+        intent.setAction("android.speech.action.RECOGNIZE_SPEECH")
+        intent.putExtra("android.speech.extra.LANGUAGE_MODEL", "free_form")
+        print(intent.__dict__)
+        print("sto per avviare láttività di riconoscimento...")
+        print("attivo in:")
+        for n in range(0,5):
+            print(5-n)
+            time.sleep(1)
+        # Avvia l'activity di riconoscimento vocale
+        r = self.android_activity.startActivityForResult(intent, 0)
+        print(r)
+        print(type(r))
+        print(r.__dict__)
+        time.sleep(10)
+        print("------------------------------------------")
+        print("provo a ripetere la cosa ma con 1:")
+        print("attivo in:")
+        for n in range(0,5):
+            print(5-n)
+            time.sleep(1)
+        r = self.android_activity.startActivityForResult(intent, 1)
+        print(r)
+        print(type(r))
+        print(r.__dict__)
     def on_stop(self):
         # Ferma l'ascolto quando l'app viene chiusa
         self.android_activity.onActivityResult = None
 
-    def on_speech_result(self, transcription):
-        print(transcription)
+    def on_activity_result(self, requestCode, resultCode, data):
+        if requestCode == 0 and resultCode == self.android_activity.RESULT_OK:
+            results = data.getStringArrayListExtra("android.speech.extra.RESULTS")
 
-        words = transcription.split()
+            if results:
+                transcription = results.get(0)
+                print(transcription)
 
-        aura_index = ''
-        if "Maura" in words:
-            aura_index = words.index("Maura")
-        elif "Aura" in words:
-            aura_index = words.index("Aura")
-        elif "Laura" in words:
-            aura_index = words.index("Laura")
+                words = transcription.split()
 
-        if aura_index:
-            aura_words = words[aura_index + 1:]
+                aura_index = ''
+                if "Maura" in words:
+                    aura_index = words.index("Maura")
+                elif "Aura" in words:
+                    aura_index = words.index("Aura")
+                elif "Laura" in words:
+                    aura_index = words.index("Laura")
 
-            for word in aura_words:
-                print(" ".join(aura_words))
-                sentence = " ".join(aura_words)
-                print(sentence)
+                if aura_index:
+                    aura_words = words[aura_index + 1:]
 
-                sio.emit('sentence', sentence)
+                    for word in aura_words:
+                        print(" ".join(aura_words))
+                        sentence = " ".join(aura_words)
+                        print(sentence)
 
-                current_time = time.time()
-                if current_time - self.last_word_time > 3:
-                    break
+                        sio.emit('sentence', sentence)
 
-                self.last_word_time = current_time
+                        current_time = time.time()
+                        if current_time - self.last_word_time > 3:
+                            break
+
+                        self.last_word_time = current_time
 
     @staticmethod
     @sio.on('response')
