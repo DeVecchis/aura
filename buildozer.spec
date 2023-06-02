@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy==2.2.0,https://github.com/kivymd/KivyMD/archive/master.zip, pyttsx3, plyer, python-socketio[client], python-engineio, bidict
+requirements = python3,kivy==2.2.0,https://github.com/kivymd/KivyMD/archive/master.zip, pyttsx3, plyer, python-socketio[client], pyjnius, python-engineio, bidict
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
