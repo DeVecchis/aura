@@ -102,7 +102,7 @@ class AuraApp(MDApp):
         engine.stop()
 
 if __name__ == "__main__":
-    sio.connect('http://127.0.0.1:8000')  # Connessione al server Flask
+    sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
     app = AuraApp()
     app.android_activity.mActivity.onActivityResult = app.on_speech_result
     app.run()
