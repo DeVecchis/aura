@@ -27,7 +27,9 @@ class AuraApp(MDApp):
         self.android_activity = PythonActivity.mActivity
 
         # Inizializza l'oggetto RecognizerIntent per il riconoscimento vocale
-        self.recognizer_intent = autoclass('android.speech.RecognizerIntent')
+        self.intent = autoclass('android.content.Intent')
+        self.recognizer_intent = self.intent(self.intent.ACTION_RECOGNIZE_SPEECH)
+        self.recognizer_intent.putExtra(self.intent.EXTRA_LANGUAGE_MODEL, self.intent.LANGUAGE_MODEL_FREE_FORM)
 
         # Avvia il riconoscimento vocale in un thread separato
         thread = Thread(target=self.listen_for_speech)
@@ -37,12 +39,7 @@ class AuraApp(MDApp):
         return kv
 
     def listen_for_speech(self):
-        intent = self.recognizer_intent.getSpeechRecognizerIntent()
-        intent.setAction(self.recognizer_intent.ACTION_RECOGNIZE_SPEECH)
-        intent.putExtra(self.recognizer_intent.EXTRA_LANGUAGE_MODEL, self.recognizer_intent.LANGUAGE_MODEL_FREE_FORM)
-
-        # Avvia l'activity di riconoscimento vocale
-        self.android_activity.startActivityForResult(intent, 0)
+        self.android_activity.startActivityForResult(self.recognizer_intent, 0)
 
     def on_speech_result(self, requestCode, resultCode, data):
         if resultCode == self.android_activity.RESULT_OK:
