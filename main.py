@@ -87,5 +87,25 @@ class AuraApp(MDApp):
 
     def on_stop(self):
         # Ferma l'ascolto quando l'app viene chiusa
-        self.android_activity
+        self.android_activity.onActivityResult = None
+
+    @staticmethod
+    @sio.on('response')
+    def receive_response(response):
+        print("Risposta dal server:", response)
+        # Esegui le operazioni necessarie con la risposta
+        # Riproduci la risposta tramite sintesi vocale
+        engine = pyttsx3.init()
+
+        # Imposta la voce femminile in italiano
+        engine.setProperty('voice', 'it')
+
+        engine.setProperty('rate', 150)  # Velocità della voce (default: 200)
+        engine.say(response)
+        engine.runAndWait()
+        engine.stop()
+
+if __name__ == "__main__":
+    sio.connect('http://127.0.0.1:8000')  # Connessione al server Flask
+    AuraApp().run()
 
