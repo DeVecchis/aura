@@ -49,6 +49,7 @@ class AuraApp(MDApp):
         self.android_activity.onActivityResult = None
 
     def on_speech_result(self, requestCode, resultCode, data):
+        print("---->>> sono in speech result: <<<----")
         print(resultCode)
         if resultCode == self.android_activity.RESULT_OK:
             # Ottenere i risultati del riconoscimento vocale
