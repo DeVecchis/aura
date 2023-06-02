@@ -1,9 +1,12 @@
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from threading import Thread
-import time
+from jnius import autoclass
 import socketio
-from plyer import tts, stt
+import time
+import requests
+import json
+import pyttsx3
 
 sio = socketio.Client()
 
@@ -21,6 +24,10 @@ class AuraApp(MDApp):
 
         self.last_word_time = time.time()
 
+        # Inizializza l'oggetto PythonActivity
+        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+        self.android_activity = PythonActivity.mActivity
+
         # Avvia il riconoscimento vocale in un thread separato
         thread = Thread(target=self.listen_for_speech)
         thread.daemon = True
@@ -30,13 +37,28 @@ class AuraApp(MDApp):
 
     def listen_for_speech(self):
         while True:
-            try:
-                transcription = stt.recognize()
+            # Avvia l'activity di riconoscimento vocale
+            intent = autoclass('android.speech.RecognizerIntent')()
+            intent.putExtra(autoclass('android.speech.RecognizerIntent').EXTRA_LANGUAGE_MODEL,
+                            autoclass('android.speech.RecognizerIntent').LANGUAGE_MODEL_FREE_FORM)
+            intent.putExtra(autoclass('android.speech.RecognizerIntent').EXTRA_LANGUAGE, 'it-IT')
+            self.android_activity.startActivityForResult(intent, 0)
+
+    def on_speech_result(self, requestCode, resultCode, data):
+        if resultCode == self.android_activity.RESULT_OK:
+            # Ottenere i risultati del riconoscimento vocale
+            results = data.getStringArrayListExtra(autoclass('android.speech.RecognizerIntent').EXTRA_RESULTS)
+
+            # Processare i risultati (nel tuo caso, convertirli in testo)
+            if results:
+                transcription = results.get(0)
                 print(transcription)
 
+                # Dividi la trascrizione in parole
                 words = transcription.split()
 
                 aura_index = ''
+                # Verifica se la parola "Aura" è stata pronunciata
                 if "Maura" in words:
                     aura_index = words.index("Maura")
                 elif "Aura" in words:
@@ -45,35 +67,44 @@ class AuraApp(MDApp):
                     aura_index = words.index("Laura")
 
                 if aura_index:
+                    # Estrai le parole successive alla parola "Aura"
                     aura_words = words[aura_index + 1:]
 
+                    # Stampa le parole dopo la parola "Aura" fino a quando non passano più di 3 secondi tra una parola e l'altra
                     for word in aura_words:
                         print(" ".join(aura_words))
                         sentence = " ".join(aura_words)
                         print(sentence)
 
+                        # Invia la variabile al server
                         sio.emit('sentence', sentence)
 
+                        # Verifica se è passato più di 3 secondi tra una parola e l'altra
                         current_time = time.time()
                         if current_time - self.last_word_time > 3:
                             break
 
                         self.last_word_time = current_time
 
-            except stt.UnknownValueError:
-                print("Non ho capito.")
-            except stt.RequestError as e:
-                print("Errore nella richiesta di riconoscimento vocale; {0}".format(e))
-
     def on_stop(self):
         # Ferma l'ascolto quando l'app viene chiusa
-        pass
+        self.android_activity.onActivityResult = None
 
     @staticmethod
     @sio.on('response')
     def receive_response(response):
         print("Risposta dal server:", response)
-        tts.speak(response)
+        # Esegui le operazioni necessarie con la risposta
+        # Riproduci la risposta tramite sintesi vocale
+        engine = pyttsx3.init()
+
+        # Imposta la voce femminile in italiano
+        engine.setProperty('voice', 'it')
+
+        engine.setProperty('rate', 150)  # Velocità della voce (default: 200)
+        engine.say(response)
+        engine.runAndWait()
+        engine.stop()
 
 if __name__ == "__main__":
     sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
