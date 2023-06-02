@@ -20,10 +20,14 @@ class AuraApp(MDApp):
         label.center_x = kv.width / 2
         label.center_y = kv.height / 2
 
-        self.android_activity = autoclass('org.kivy.android.PythonActivity')
-        self.recognizer_intent = autoclass('android.speech.RecognizerIntent')
-
         self.last_word_time = time.time()
+
+        # Inizializza l'oggetto PythonActivity
+        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+        self.android_activity = PythonActivity.mActivity
+
+        # Inizializza l'oggetto RecognizerIntent per il riconoscimento vocale
+        self.recognizer_intent = autoclass('android.speech.RecognizerIntent')
 
         # Avvia il riconoscimento vocale in un thread separato
         thread = Thread(target=self.listen_for_speech)
@@ -37,7 +41,7 @@ class AuraApp(MDApp):
         intent.putExtra(self.recognizer_intent.EXTRA_LANGUAGE_MODEL, self.recognizer_intent.LANGUAGE_MODEL_FREE_FORM)
 
         # Avvia l'activity di riconoscimento vocale
-        self.android_activity.mActivity.startActivityForResult(intent, 0)
+        self.android_activity.startActivityForResult(intent, 0)
 
     def on_speech_result(self, requestCode, resultCode, data):
         if resultCode == self.android_activity.RESULT_OK:
@@ -83,26 +87,5 @@ class AuraApp(MDApp):
 
     def on_stop(self):
         # Ferma l'ascolto quando l'app viene chiusa
-        self.android_activity.mActivity.onActivityResult = None
+        self.android_activity
 
-    @staticmethod
-    @sio.on('response')
-    def receive_response(response):
-        print("Risposta dal server:", response)
-        # Esegui le operazioni necessarie con la risposta
-        # Riproduci la risposta tramite sintesi vocale
-        engine = pyttsx3.init()
-
-        # Imposta la voce femminile in italiano
-        engine.setProperty('voice', 'it')
-
-        engine.setProperty('rate', 150)  # Velocità della voce (default: 200)
-        engine.say(response)
-        engine.runAndWait()
-        engine.stop()
-
-if __name__ == "__main__":
-    sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
-    app = AuraApp()
-    app.android_activity.mActivity.onActivityResult = app.on_speech_result
-    app.run()
