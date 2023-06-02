@@ -2,6 +2,9 @@ from kivy.lang import Builder
 from kivymd.app import MDApp
 from threading import Thread
 from jnius import autoclass
+import socketio
+import time
+import pyttsx3
 
 sio = socketio.Client()
 
