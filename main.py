@@ -1,4 +1,4 @@
-from jnius import autoclass
+from jnius import autoclass, cast
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -42,71 +42,16 @@ class AuraApp(MDApp):
         # Avvia l'activity di riconoscimento vocale
         self.android_activity.startActivityForResult(intent, 0)
 
-    def on_speech_result(self, requestCode, resultCode, data):
-        if resultCode == self.android_activity.RESULT_OK:
-            # Ottenere i risultati del riconoscimento vocale
-            results = data.getStringArrayListExtra(autoclass('android.speech.RecognizerIntent').EXTRA_RESULTS)
+        # Aspetta il risultato dell'attività di riconoscimento vocale
+        result = self.android_activity.onActivityResult(0, -1, intent, 0, None)
+        print("la variabile result è:",result)
+        # Recupera il testo dalla lista dei risultati
+        if result and len(result) > 0:
+            results_list = result.getStringArrayListExtra(autoclass('android.speech.RecognizerIntent').EXTRA_RESULTS)
+            print("la variabile results_list è:",results_list)
+            if results_list:
+                recognized_text = results_list.get(0)
+                print("Testo riconosciuto:", recognized_text)
 
-            # Processare i risultati (nel tuo caso, convertirli in testo)
-            if results:
-                transcription = results.get(0)
-                print(transcription)
-
-                # Stampa il testo riconosciuto
-                print("Testo riconosciuto:", transcription)
-
-                # Dividi la trascrizione in parole
-                words = transcription.split()
-
-                aura_index = ''
-                # Verifica se la parola "Aura" è stata pronunciata
-                if "Maura" in words:
-                    aura_index = words.index("Maura")
-                elif "Aura" in words:
-                    aura_index = words.index("Aura")
-                elif "Laura" in words:
-                    aura_index = words.index("Laura")
-
-                if aura_index:
-                    # Estrai le parole successive alla parola "Aura"
-                    aura_words = words[aura_index + 1:]
-
-                    # Stampa le parole dopo la parola "Aura" fino a quando non passano più di 3 secondi tra una parola e l'altra
-                    for word in aura_words:
-                        print(" ".join(aura_words))
-                        sentence = " ".join(aura_words)
-                        print(sentence)
-
-                        # Invia la variabile al server
-                        sio.emit('sentence', sentence)
-
-                        # Verifica se è passato più di 3 secondi tra una parola e l'altra
-                        current_time = time.time()
-                        if current_time - self.last_word_time > 3:
-                            break
-
-                        self.last_word_time = current_time
-
-    def on_stop(self):
-        # Ferma l'ascolto quando l'app viene chiusa
-        self.android_activity.onActivityResult = None
-
-    @staticmethod
-    @sio.on('response')
-    def receive_response(response):
-        print("Risposta dal server:", response)
-        # Esegui le operazioni necessarie con la risposta
-        # Riproduci la risposta tramite sintesi vocale
-        engine = pyttsx3.init()
-
-        # Imposta la voce femminile in italiano
-        engine.setProperty('voice', 'it')
-
-        engine.setProperty('rate', 150)  # Velocità della voce (default: 200)
-        engine.say(response)
-        engine.runAndWait()
-        engine.stop()
-
-if __name__ == "__main__":
-    sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
+if __name__ == '__main__':
     AuraApp().run()
