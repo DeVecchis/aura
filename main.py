@@ -37,7 +37,7 @@ class AuraApp(MDApp):
         return kv
 
     def listen_for_speech(self):
-        intent = self.recognizer_intent()
+        intent = self.recognizer_intent.getSpeechRecognizerIntent()
         intent.setAction(self.recognizer_intent.ACTION_RECOGNIZE_SPEECH)
         intent.putExtra(self.recognizer_intent.EXTRA_LANGUAGE_MODEL, self.recognizer_intent.LANGUAGE_MODEL_FREE_FORM)
 
