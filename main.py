@@ -1,11 +1,9 @@
-from jnius import autoclass, cast
 from kivy.lang import Builder
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
 from kivymd.app import MDApp
 from threading import Thread
 import time
 import socketio
+import pyttsx3
 
 sio = socketio.Client()
 
@@ -23,10 +21,6 @@ class AuraApp(MDApp):
 
         self.last_word_time = time.time()
 
-        # Inizializza l'oggetto PythonActivity
-        PythonActivity = autoclass('org.kivy.android.PythonActivity')
-        self.android_activity = PythonActivity.mActivity
-
         # Avvia il riconoscimento vocale in un thread separato
         thread = Thread(target=self.listen_for_speech)
         thread.daemon = True
@@ -35,23 +29,50 @@ class AuraApp(MDApp):
         return kv
 
     def listen_for_speech(self):
-        intent = autoclass('android.content.Intent')()
-        intent.setAction("android.speech.action.RECOGNIZE_SPEECH")
-        intent.putExtra("android.speech.extra.LANGUAGE_MODEL", "free_form")
+        droid = autoclass('androidhelper.Android').Android()
+        result = droid.recognizeSpeech('Parla', None, None)
 
-        # Avvia l'activity di riconoscimento vocale
-        self.android_activity.startActivityForResult(intent, 0)
+        if result.error is None:
+            transcription = result.result
+            print(transcription)
 
-        # Aspetta il risultato dell'attività di riconoscimento vocale
-        result = self.android_activity.onActivityResult(0, -1, intent, 0, None)
-        print("la variabile result è:",result)
-        # Recupera il testo dalla lista dei risultati
-        if result and len(result) > 0:
-            results_list = result.getStringArrayListExtra(autoclass('android.speech.RecognizerIntent').EXTRA_RESULTS)
-            print("la variabile results_list è:",results_list)
-            if results_list:
-                recognized_text = results_list.get(0)
-                print("Testo riconosciuto:", recognized_text)
+            words = transcription.split()
 
-if __name__ == '__main__':
+            aura_index = ''
+            if "Maura" in words:
+                aura_index = words.index("Maura")
+            elif "Aura" in words:
+                aura_index = words.index("Aura")
+            elif "Laura" in words:
+                aura_index = words.index("Laura")
+
+            if aura_index:
+                aura_words = words[aura_index + 1:]
+
+                for word in aura_words:
+                    print(" ".join(aura_words))
+                    sentence = " ".join(aura_words)
+                    print(sentence)
+
+                    sio.emit('sentence', sentence)
+
+                    current_time = time.time()
+                    if current_time - self.last_word_time > 3:
+                        break
+
+                    self.last_word_time = current_time
+
+    @staticmethod
+    @sio.on('response')
+    def receive_response(response):
+        print("Risposta dal server:", response)
+        engine = pyttsx3.init()
+        engine.setProperty('voice', 'it')
+        engine.setProperty('rate', 150)
+        engine.say(response)
+        engine.runAndWait()
+        engine.stop()
+
+if __name__ == "__main__":
+    sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
     AuraApp().run()
