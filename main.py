@@ -1,11 +1,9 @@
-from jnius import autoclass, cast
 from kivy.lang import Builder
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
 from kivymd.app import MDApp
 from threading import Thread
 import time
 import socketio
+from plyer import tts, stt
 
 sio = socketio.Client()
 
@@ -23,13 +21,6 @@ class AuraApp(MDApp):
 
         self.last_word_time = time.time()
 
-        # Inizializza l'oggetto PythonActivity
-        PythonActivity = autoclass('org.kivy.android.PythonActivity')
-        self.android_activity = PythonActivity.mActivity
-
-        # Sovrascrivi il metodo onActivityResult per gestire la risposta del riconoscimento vocale
-        PythonActivity.mActivity.onActivityResult = self.on_activity_result
-
         # Avvia il riconoscimento vocale in un thread separato
         thread = Thread(target=self.listen_for_speech)
         thread.daemon = True
@@ -38,23 +29,9 @@ class AuraApp(MDApp):
         return kv
 
     def listen_for_speech(self):
-        intent = autoclass('android.content.Intent')()
-        intent.setAction("android.speech.action.RECOGNIZE_SPEECH")
-        intent.putExtra("android.speech.extra.LANGUAGE_MODEL", "free_form")
-
-        # Avvia l'activity di riconoscimento vocale
-        self.android_activity.startActivityForResult(intent, 0)
-
-    def on_stop(self):
-        # Ferma l'ascolto quando l'app viene chiusa
-        self.android_activity.onActivityResult = None
-
-    def on_activity_result(self, requestCode, resultCode, data):
-        if requestCode == 0 and resultCode == self.android_activity.RESULT_OK:
-            results = data.getStringArrayListExtra("android.speech.extra.RESULTS")
-
-            if results:
-                transcription = results.get(0)
+        while True:
+            try:
+                transcription = stt.recognize()
                 print(transcription)
 
                 words = transcription.split()
@@ -83,10 +60,20 @@ class AuraApp(MDApp):
 
                         self.last_word_time = current_time
 
+            except stt.UnknownValueError:
+                print("Non ho capito.")
+            except stt.RequestError as e:
+                print("Errore nella richiesta di riconoscimento vocale; {0}".format(e))
+
+    def on_stop(self):
+        # Ferma l'ascolto quando l'app viene chiusa
+        pass
+
     @staticmethod
     @sio.on('response')
     def receive_response(response):
         print("Risposta dal server:", response)
+        tts.speak(response)
 
 if __name__ == "__main__":
     sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
