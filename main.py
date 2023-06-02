@@ -4,37 +4,22 @@ from threading import Thread
 import time
 import socketio
 import pyttsx3
-from jnius import autoclass
+from jnius import autoclass, PythonJavaClass, java_method
 
 sio = socketio.Client()
 
-class AuraApp(MDApp):
-    def build(self):
-        self.theme_cls.theme_style = "Dark"
-        self.theme_cls.primary_palette = "DeepPurple"
+class RecognitionListener(PythonJavaClass):
+    __javainterfaces__ = ['android/speech/RecognitionListener']
 
-        kv = Builder.load_file("aura.kv")
-        label = kv.ids.label
+    def __init__(self, app):
+        super(RecognitionListener, self).__init__()
+        self.app = app
 
-        label.font_size = 100
-        label.center_x = kv.width / 2
-        label.center_y = kv.height / 2
-
-        self.last_word_time = time.time()
-
-        # Avvia il riconoscimento vocale in un thread separato
-        thread = Thread(target=self.listen_for_speech)
-        thread.daemon = True
-        thread.start()
-
-        return kv
-
-    def listen_for_speech(self):
-        droid = autoclass('androidhelper.Android').Android()
-        result = droid.recognizeSpeech('Parla', None, None)
-
-        if result.error is None:
-            transcription = result.result
+    @java_method('(I)V')
+    def onResults(self, result):
+        matches = result.getStringArrayList('results')
+        if matches:
+            transcription = matches.get(0)
             print(transcription)
 
             words = transcription.split()
@@ -58,10 +43,44 @@ class AuraApp(MDApp):
                     sio.emit('sentence', sentence)
 
                     current_time = time.time()
-                    if current_time - self.last_word_time > 3:
+                    if current_time - self.app.last_word_time > 3:
                         break
 
-                    self.last_word_time = current_time
+                    self.app.last_word_time = current_time
+
+class AuraApp(MDApp):
+    def build(self):
+        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "DeepPurple"
+
+        kv = Builder.load_file("aura.kv")
+        label = kv.ids.label
+
+        label.font_size = 100
+        label.center_x = kv.width / 2
+        label.center_y = kv.height / 2
+
+        self.last_word_time = time.time()
+
+        # Avvia il riconoscimento vocale in un thread separato
+        thread = Thread(target=self.listen_for_speech)
+        thread.daemon = True
+        thread.start()
+
+        return kv
+
+    def listen_for_speech(self):
+        PyRecognizer = autoclass('android.speech.Recognizer')
+        recognizer = PyRecognizer.createSpeechRecognizer(self)
+
+        listener = RecognitionListener(self)
+        recognizer.setRecognitionListener(listener)
+
+        intent = autoclass('android.content.Intent')
+        recognizerIntent = intent(autoclass('android/speech/RecognizerIntent').ACTION_RECOGNIZE_SPEECH)
+        recognizerIntent.putExtra(autoclass('android/speech/RecognizerIntent').EXTRA_LANGUAGE_MODEL, autoclass('android/speech/RecognizerIntent').LANGUAGE_MODEL_FREE_FORM)
+
+        recognizer.startListening(recognizerIntent)
 
     @staticmethod
     @sio.on('response')
