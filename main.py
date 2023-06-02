@@ -1,10 +1,11 @@
+from jnius import autoclass
 from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
 from kivymd.app import MDApp
 from threading import Thread
-from jnius import autoclass
-import socketio
 import time
-import pyttsx3
+import socketio
 
 sio = socketio.Client()
 
@@ -26,11 +27,6 @@ class AuraApp(MDApp):
         PythonActivity = autoclass('org.kivy.android.PythonActivity')
         self.android_activity = PythonActivity.mActivity
 
-        # Inizializza l'oggetto RecognizerIntent per il riconoscimento vocale
-        self.intent = autoclass('android.content.Intent')
-        self.recognizer_intent = self.intent(self.intent.ACTION_RECOGNIZE_SPEECH)
-        self.recognizer_intent.putExtra(self.intent.EXTRA_LANGUAGE_MODEL, self.intent.LANGUAGE_MODEL_FREE_FORM)
-
         # Avvia il riconoscimento vocale in un thread separato
         thread = Thread(target=self.listen_for_speech)
         thread.daemon = True
@@ -39,12 +35,21 @@ class AuraApp(MDApp):
         return kv
 
     def listen_for_speech(self):
-        self.android_activity.startActivityForResult(self.recognizer_intent, 0)
+        intent = autoclass('android.content.Intent')()
+        intent.setAction("android.speech.action.RECOGNIZE_SPEECH")
+        intent.putExtra("android.speech.extra.LANGUAGE_MODEL", "free_form")
+
+        # Avvia l'activity di riconoscimento vocale
+        self.android_activity.startActivityForResult(intent, 0)
+
+    def on_stop(self):
+        # Ferma l'ascolto quando l'app viene chiusa
+        self.android_activity.onActivityResult = None
 
     def on_speech_result(self, requestCode, resultCode, data):
         if resultCode == self.android_activity.RESULT_OK:
             # Ottenere i risultati del riconoscimento vocale
-            results = data.getStringArrayListExtra(self.recognizer_intent.EXTRA_RESULTS)
+            results = data.getStringArrayListExtra("android.speech.extra.RESULTS")
 
             # Processare i risultati (nel tuo caso, convertirli in testo)
             if results:
@@ -83,27 +88,11 @@ class AuraApp(MDApp):
 
                         self.last_word_time = current_time
 
-    def on_stop(self):
-        # Ferma l'ascolto quando l'app viene chiusa
-        self.android_activity.onActivityResult = None
-
     @staticmethod
     @sio.on('response')
     def receive_response(response):
         print("Risposta dal server:", response)
-        # Esegui le operazioni necessarie con la risposta
-        # Riproduci la risposta tramite sintesi vocale
-        engine = pyttsx3.init()
-
-        # Imposta la voce femminile in italiano
-        engine.setProperty('voice', 'it')
-
-        engine.setProperty('rate', 150)  # Velocità della voce (default: 200)
-        engine.say(response)
-        engine.runAndWait()
-        engine.stop()
 
 if __name__ == "__main__":
     sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
     AuraApp().run()
-
