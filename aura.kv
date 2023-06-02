@@ -18,3 +18,24 @@ BoxLayout:
         theme_text_color: "Secondary"
         size_hint_y: None
         height: self.texture_size[1]
+
+<RootLayout>:
+    orientation: "vertical"
+    spacing: "10dp"
+    padding: "10dp"
+    canvas.before:
+        Color:
+            rgba: app.theme_cls.bg_normal
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    MDLabel:
+        id: label
+        text: "Aura"
+        font_style: "H1"
+        halign: "center"
+        valign: "middle"
+        theme_text_color: "Secondary"
+        size_hint_y: None
+        height: self.texture_size[1]
