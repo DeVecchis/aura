@@ -1,10 +1,11 @@
+
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from threading import Thread
 import time
 import socketio
 import pyttsx3
-from jnius import autoclass
+import sounddevice as sd
 import speech_recognition as sr
 
 sio = socketio.Client()
@@ -34,42 +35,27 @@ class AuraApp(MDApp):
         # Configura il riconoscimento vocale con speech_recognition
         recognizer = sr.Recognizer()
 
+        # Imposta il dispositivo audio di input al microfono predefinito
+        input_device = sd.default.device[0]
+
         # Imposta i parametri audio per la registrazione
         sample_rate = 16000  # Frequenza di campionamento in Hz
         duration = 4  # Durata della registrazione in secondi
 
         print("Registrazione in corso...")
-
-        # Utilizza PyJNIus per accedere alle API Java per l'acquisizione dell'audio
-        MediaRecorder = autoclass('android.media.MediaRecorder')
-        AudioSource = autoclass('android.media.MediaRecorder$AudioSource')
-
-        # Crea un'istanza di MediaRecorder per la registrazione dell'audio
-        recorder = MediaRecorder()
-        recorder.setAudioSource(AudioSource.MIC)
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-        recorder.setAudioSamplingRate(sample_rate)
-        recorder.setMaxDuration(duration * 1000)  # Durata massima in millisecondi
-        recorder.setOutputFile('/dev/null')  # Salva l'audio in un file temporaneo
-
-        # Prepara e avvia la registrazione
-        recorder.prepare()
-        recorder.start()
-
         while True:
-            # Leggi l'audio registrato
-            audio_data = recorder.readAmplitude()
-            
+            # Acquisisci l'audio dal microfono utilizzando sounddevice
+            audio = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1, blocking=True, dtype='int16')
+            text=''
             # Converte l'audio in testo utilizzando speech_recognition
             try:
+                audio = audio.flatten()
+                audio_data = sr.AudioData(audio.tobytes(), sample_rate, sample_width=2)
                 text = recognizer.recognize_google(audio_data, language="it-IT")  # Modifica la lingua in base alle tue esigenze
-                print(text)
             except sr.UnknownValueError:
                 print("Impossibile convertire l'audio in testo.")
             except sr.RequestError as e:
                 print("Errore durante la richiesta al servizio di riconoscimento vocale:", str(e))
-
             # Dividi la trascrizione in parole
             words = text.split()
 
@@ -95,23 +81,13 @@ class AuraApp(MDApp):
                     # Invia la variabile al server
                     sio.emit('sentence', sentence)
 
-                    # Verifica se è passato più di 3 secondi tra una parola e l'altra
-                    current_time = time.time()
-                    if current_time - self.last_word_time > 3:
-                        break
+                    # # Verifica se è passato più di 3 secondi tra una parola e l'altra
+                    # current_time = time.time()
+                    # if current_time - self.last_word_time > 3:
+                    #     break
 
-                    self.last_word_time = current_time
+                    # self.last_word_time = current_time
 
-            # Verifica se è passato più di 3 secondi tra una registrazione e l'altra
-            current_time = time.time()
-            if current_time - self.last_word_time > 3:
-                break
-
-            self.last_word_time = current_time
-
-        # Interrompi e rilascia la registrazione
-        recorder.stop()
-        recorder.release()
 
     def on_stop(self):
         # Ferma l'ascolto quando l'app viene chiusa
