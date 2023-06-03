@@ -37,8 +37,12 @@ class AuraApp(MDApp):
         # Importa le classi Java necessarie
         AudioRecord = autoclass('android.media.AudioRecord')
         AudioFormat = autoclass('android.media.AudioFormat')
+        MediaRecorder = autoclass('android.media.MediaRecorder')
+        Environment = autoclass('android.os.Environment')
+
         # Inizializza PyJNIus
         autoclass('org.kivy.android.PythonActivity').mActivity
+
         # Imposta i parametri audio per l'acquisizione
         sample_rate = 16000  # Frequenza di campionamento in Hz
         channel_config = AudioFormat.CHANNEL_IN_MONO
@@ -47,13 +51,12 @@ class AuraApp(MDApp):
 
         # Inizializza l'oggetto AudioRecord per l'acquisizione audio
         audio_record = AudioRecord(
-            AudioRecord.audioSource.MIC,
+            MediaRecorder.setAudioSource.MIC,
             sample_rate,
             channel_config,
             audio_format,
             buffer_size
         )
-
         print("Registrazione in corso...")
         while True:
             # Avvia la registrazione audio
@@ -66,16 +69,17 @@ class AuraApp(MDApp):
             # Puoi eseguire questa parte in un ciclo o come callback
             audio_record.read(audio_buffer, 0, buffer_size)
 
-            # Ferma la registrazione audio
-            audio_record.stop()
 
             # Converte i dati audio in formato utilizzabile da SpeechRecognition
             audio_data = bytes(audio_buffer)
 
             # Crea un oggetto AudioData utilizzando i dati audio
-            audio = sr.AudioData(audio_data, sample_rate, sample_width=2)
+            audio = sr.AudioData(audio_data, sample_rate, sample_format=16)
 
             # Utilizza SpeechRecognition per il riconoscimento vocale
+            recognizer = sr.Recognizer()
+
+            # Converte l'audio in testo utilizzando speech_recognition
             try:
                 text = recognizer.recognize_google(audio, language="it-IT")  # Modifica la lingua in base alle tue esigenze
             except sr.UnknownValueError:
