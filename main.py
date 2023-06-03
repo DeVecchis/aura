@@ -60,87 +60,9 @@ class AuraApp(MDApp):
             buffer_size
         )
         print("Registrazione in corso...")
-        while True:
             # Avvia la registrazione audio
-            audio_record.startRecording()
-
-            # Crea un buffer per i dati audio
-            audio_buffer = bytearray(buffer_size)
-
-            # Acquisisci i dati audio fino a quando desideri
-            # Puoi eseguire questa parte in un ciclo o come callback
-            audio_record.read(audio_buffer, 0, buffer_size)
-
-
-            # Converte i dati audio in formato utilizzabile da SpeechRecognition
-            audio_data = bytes(audio_buffer)
-
-            # Crea un oggetto AudioData utilizzando i dati audio
-            audio = sr.AudioData(audio_data, sample_rate, sample_format=16)
-
-            # Utilizza SpeechRecognition per il riconoscimento vocale
-            recognizer = sr.Recognizer()
-
-            # Converte l'audio in testo utilizzando speech_recognition
-            try:
-                text = recognizer.recognize_google(audio, language="it-IT")  # Modifica la lingua in base alle tue esigenze
-            except sr.UnknownValueError:
-                print("Impossibile convertire l'audio in testo.")
-            except sr.RequestError as e:
-                print("Errore durante la richiesta al servizio di riconoscimento vocale:", str(e))
-
-            # Dividi la trascrizione in parole
-            words = text.split()
-
-            aura_index = ''
-            # Verifica se la parola "Aura" è stata pronunciata
-            if "Maura" in words:
-                aura_index = words.index("Maura")
-            elif "Aura" in words:
-                aura_index = words.index("Aura")
-            elif "Laura" in words:
-                aura_index = words.index("Laura")
-
-            if aura_index:
-                # Estrai le parole successive alla parola "Aura"
-                aura_words = words[aura_index + 1:]
-
-                # Stampa le parole dopo la parola "Aura" fino a quando non passano più di 3 secondi tra una parola e l'altra
-                for word in aura_words:
-                    print(" ".join(aura_words))
-                    sentence = " ".join(aura_words)
-                    print(sentence)
-
-                    # Invia la variabile al server
-                    sio.emit('sentence', sentence)
-
-                    # # Verifica se è passato più di 3 secondi tra una parola e l'altra
-                    # current_time = time.time()
-                    # if current_time - self.last_word_time > 3:
-                    #     break
-
-                    # self.last_word_time = current_time
-
-
-    def on_stop(self):
-        # Ferma l'ascolto quando l'app viene chiusa
-        pass
-
-    @staticmethod
-    @sio.on('response')
-    def receive_response(response):
-        print("Risposta dal server:", response)
-        # Esegui le operazioni necessarie con la risposta
-        # Riproduci la risposta tramite sintesi vocale
-        engine = pyttsx3.init()
-        
-        # Imposta la voce femminile in italiano
-        engine.setProperty('voice', 'it')
-        
-        engine.setProperty('rate', 150)  # Velocità della voce (default: 200)
-        engine.say(response)
-        engine.runAndWait()
-        engine.stop()
+        print(audio_record.__dict__)
+        audio_record.startRecording()
 
 if __name__ == "__main__":
     sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
