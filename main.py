@@ -47,7 +47,7 @@ class AuraApp(MDApp):
 
         # Inizializza l'oggetto AudioRecord per l'acquisizione audio
         audio_record = AudioRecord(
-            AudioRecord.AudioSource.MIC,
+            AudioRecord.audioSource.MIC,
             sample_rate,
             channel_config,
             audio_format,
