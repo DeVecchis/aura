@@ -37,7 +37,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy==2.2.0,https://github.com/kivymd/KivyMD/archive/master.zip, pyttsx3, plyer, python-socketio[client], pyjnius, python-engineio, bidict, speech_recognition
+requirements = python3,kivy==2.2.0,https://github.com/kivymd/KivyMD/archive/master.zip, pyttsx3, plyer, python-socketio[client], sounddevice, python-engineio, bidict, speech_recognition
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -98,6 +98,7 @@ fullscreen = 0
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
 android.permissions = INTERNET, RECORD_AUDIO
+android.add_libs = ['portaudio.so']
 # (int) Target Android API, should be as high as possible.
 android.api = 30
 
