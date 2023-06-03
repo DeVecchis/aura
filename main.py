@@ -34,32 +34,50 @@ class AuraApp(MDApp):
         # Configura il riconoscimento vocale con speech_recognition
         recognizer = sr.Recognizer()
 
-        # Inizializza l'oggetto AndroidAudioRecorder
-        AndroidAudioRecorder = autoclass('com.smp.soundtouchandroid.AndroidAudioRecorder')
+        # Importa le classi Java necessarie
+        AudioRecord = autoclass('android.media.AudioRecord')
+        AudioFormat = autoclass('android.media.AudioFormat')
+        MediaRecorder = autoclass('android.media.MediaRecorder')
+        Environment = autoclass('android.os.Environment')
+
+        # Inizializza PyJNIus
+        autoclass('org.kivy.android.PythonActivity').mActivity
 
         # Imposta i parametri audio per l'acquisizione
         sample_rate = 16000  # Frequenza di campionamento in Hz
-        buffer_size = 1024
+        channel_config = AudioFormat.CHANNEL_IN_MONO
+        audio_format = AudioFormat.ENCODING_PCM_16BIT
+        buffer_size = AudioRecord.getMinBufferSize(sample_rate, channel_config, audio_format)
 
+        # Inizializza l'oggetto AudioRecord per l'acquisizione audio
+        audio_record = AudioRecord(
+            MediaRecorder.AudioSource.MIC,
+            sample_rate,
+            channel_config,
+            audio_format,
+            buffer_size
+        )
         print("Registrazione in corso...")
         while True:
-            # Crea un oggetto di registrazione audio Android
-            audio_record = AndroidAudioRecorder(sample_rate, buffer_size)
-
             # Avvia la registrazione audio
-            audio_record.start()
+            audio_record.startRecording()
+
+            # Crea un buffer per i dati audio
+            audio_buffer = bytearray(buffer_size)
 
             # Acquisisci i dati audio fino a quando desideri
             # Puoi eseguire questa parte in un ciclo o come callback
-            audio_buffer = audio_record.read()
+            audio_record.read(audio_buffer, 0, buffer_size)
 
-            # Ferma la registrazione audio
-            audio_record.stop()
 
-            text = ''
             # Converte i dati audio in formato utilizzabile da SpeechRecognition
             audio_data = bytes(audio_buffer)
+
+            # Crea un oggetto AudioData utilizzando i dati audio
             audio = sr.AudioData(audio_data, sample_rate, sample_format=16)
+
+            # Utilizza SpeechRecognition per il riconoscimento vocale
+            recognizer = sr.Recognizer()
 
             # Converte l'audio in testo utilizzando speech_recognition
             try:
