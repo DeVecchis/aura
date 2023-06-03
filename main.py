@@ -40,7 +40,7 @@ class AuraApp(MDApp):
         AudioSource = autoclass('android.media.MediaRecorder$AudioSource')
         Environment = autoclass('android.os.Environment')
         print("--------------------------------")
-        print(AudioSource.__dict__)
+        print(AudioRecord.__dict__)
         print("--------------------------------")
         # Inizializza PyJNIus
         autoclass('org.kivy.android.PythonActivity').mActivity
@@ -50,7 +50,9 @@ class AuraApp(MDApp):
         channel_config = AudioFormat.CHANNEL_IN_MONO
         audio_format = AudioFormat.ENCODING_PCM_16BIT
         buffer_size = AudioRecord.getMinBufferSize(sample_rate, channel_config, audio_format)
-
+        print(buffer_size)
+        print(audio_format)
+        print(channel_config)
         # Inizializza l'oggetto AudioRecord per l'acquisizione audio
         audio_record = AudioRecord(
             AudioSource.MIC,
@@ -62,7 +64,7 @@ class AuraApp(MDApp):
         print("Registrazione in corso...")
             # Avvia la registrazione audio
         print(audio_record.__dict__)
-        audio_record.startRecording()
+        # audio_record.startRecording()
 
 if __name__ == "__main__":
     sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
