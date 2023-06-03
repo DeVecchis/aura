@@ -64,7 +64,7 @@ class AuraApp(MDApp):
         print("Registrazione in corso...")
             # Avvia la registrazione audio
         print(audio_record.__dict__)
-        # audio_record.startRecording()
+        audio_record.startRecording()
 
 if __name__ == "__main__":
     sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
