@@ -37,8 +37,7 @@ class AuraApp(MDApp):
         # Importa le classi Java necessarie
         AudioRecord = autoclass('android.media.AudioRecord')
         AudioFormat = autoclass('android.media.AudioFormat')
-        MediaRecorder = autoclass('android.media.MediaRecorder')
-        Environment = autoclass('android.os.Environment')
+        AudioSource = autoclass('android.media.MediaRecorder.AudioSource')
 
         # Inizializza PyJNIus
         autoclass('org.kivy.android.PythonActivity').mActivity
@@ -51,7 +50,7 @@ class AuraApp(MDApp):
 
         # Inizializza l'oggetto AudioRecord per l'acquisizione audio
         audio_record = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
+            AudioSource.MIC,
             sample_rate,
             channel_config,
             audio_format,
