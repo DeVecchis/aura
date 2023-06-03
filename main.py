@@ -1,12 +1,11 @@
-
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from threading import Thread
 import time
 import socketio
 import pyttsx3
-import sounddevice as sd
 import speech_recognition as sr
+from jnius import autoclass
 
 sio = socketio.Client()
 
@@ -35,27 +34,41 @@ class AuraApp(MDApp):
         # Configura il riconoscimento vocale con speech_recognition
         recognizer = sr.Recognizer()
 
-        # Imposta il dispositivo audio di input al microfono predefinito
-        input_device = sd.default.device[0]
+        # Inizializza l'oggetto AndroidAudioRecorder
+        AndroidAudioRecorder = autoclass('com.smp.soundtouchandroid.AndroidAudioRecorder')
 
-        # Imposta i parametri audio per la registrazione
+        # Imposta i parametri audio per l'acquisizione
         sample_rate = 16000  # Frequenza di campionamento in Hz
-        duration = 4  # Durata della registrazione in secondi
+        buffer_size = 1024
 
         print("Registrazione in corso...")
         while True:
-            # Acquisisci l'audio dal microfono utilizzando sounddevice
-            audio = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1, blocking=True, dtype='int16')
-            text=''
+            # Crea un oggetto di registrazione audio Android
+            audio_record = AndroidAudioRecorder(sample_rate, buffer_size)
+
+            # Avvia la registrazione audio
+            audio_record.start()
+
+            # Acquisisci i dati audio fino a quando desideri
+            # Puoi eseguire questa parte in un ciclo o come callback
+            audio_buffer = audio_record.read()
+
+            # Ferma la registrazione audio
+            audio_record.stop()
+
+            text = ''
+            # Converte i dati audio in formato utilizzabile da SpeechRecognition
+            audio_data = bytes(audio_buffer)
+            audio = sr.AudioData(audio_data, sample_rate, sample_format=16)
+
             # Converte l'audio in testo utilizzando speech_recognition
             try:
-                audio = audio.flatten()
-                audio_data = sr.AudioData(audio.tobytes(), sample_rate, sample_width=2)
-                text = recognizer.recognize_google(audio_data, language="it-IT")  # Modifica la lingua in base alle tue esigenze
+                text = recognizer.recognize_google(audio, language="it-IT")  # Modifica la lingua in base alle tue esigenze
             except sr.UnknownValueError:
                 print("Impossibile convertire l'audio in testo.")
             except sr.RequestError as e:
                 print("Errore durante la richiesta al servizio di riconoscimento vocale:", str(e))
+
             # Dividi la trascrizione in parole
             words = text.split()
 
