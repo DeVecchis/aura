@@ -93,12 +93,11 @@ fullscreen = 0
 #icon.adaptive_background.filename = %(source.dir)s/data/icon_bg.png
 
 # (list) Permissions
-#android.permissions = INTERNET
+#android.permissions = INTERNET, RECORD_AUDIO
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
-android.permissions = INTERNET, RECORD_AUDIO
-android.add_libs = libportaudio.so
+android.permissions = RECORD_AUDIO
 # (int) Target Android API, should be as high as possible.
 android.api = 30
 
