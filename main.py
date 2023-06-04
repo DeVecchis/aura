@@ -6,6 +6,8 @@ import socketio
 import pyttsx3
 import speech_recognition as sr
 from jnius import autoclass
+from pydub import AudioSegment
+import io
 
 sio = socketio.Client()
 
@@ -80,7 +82,8 @@ class AuraApp(MDApp):
 
             # Converte l'audio in testo utilizzando speech_recognition
             try:
-                text = recognizer.recognize_google(audio.get_raw_data(), language="it-IT")
+                audio_wav = AudioSegment.from_file(io.BytesIO(audio.get_wav_data()))
+                text = recognizer.recognize_google(audio_wav, language="it-IT")
                 print("Testo riconosciuto:", text)
             except sr.UnknownValueError:
                 print("Impossibile convertire l'audio in testo.")
