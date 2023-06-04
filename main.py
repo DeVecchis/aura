@@ -1,4 +1,5 @@
 from kivy.lang import Builder
+from kivy.utils import platform
 from kivymd.app import MDApp
 from threading import Thread
 import time
@@ -6,6 +7,7 @@ import socketio
 import pyttsx3
 import speech_recognition as sr
 from jnius import autoclass
+from android.permissions import request_permissions, Permission
 
 sio = socketio.Client()
 
@@ -34,37 +36,53 @@ class AuraApp(MDApp):
         # Configura il riconoscimento vocale con speech_recognition
         recognizer = sr.Recognizer()
 
-        # Importa le classi Java necessarie
-        AudioRecord = autoclass('android.media.AudioRecord')
-        AudioFormat = autoclass('android.media.AudioFormat')
-        AudioSource = autoclass('android.media.MediaRecorder$AudioSource')
-        Environment = autoclass('android.os.Environment')
-        print("--------------------------------")
-        print(AudioRecord.__dict__)
-        print("--------------------------------")
-        # Inizializza PyJNIus
-        autoclass('org.kivy.android.PythonActivity').mActivity
+        # Richiedi i permessi RECORD_AUDIO
+        self.request_permissions()
 
         # Imposta i parametri audio per l'acquisizione
         sample_rate = 16000  # Frequenza di campionamento in Hz
-        channel_config = AudioFormat.CHANNEL_IN_MONO
-        audio_format = AudioFormat.ENCODING_PCM_16BIT
-        buffer_size = AudioRecord.getMinBufferSize(sample_rate, channel_config, audio_format)
-        print(buffer_size)
-        print(audio_format)
-        print(channel_config)
+        channel_config = autoclass('android.media.AudioFormat').CHANNEL_IN_MONO
+        audio_format = autoclass('android.media.AudioFormat').ENCODING_PCM_16BIT
+        buffer_size = autoclass('android.media.AudioRecord').getMinBufferSize(sample_rate, channel_config, audio_format)
+
         # Inizializza l'oggetto AudioRecord per l'acquisizione audio
-        audio_record = AudioRecord(
-            AudioSource.MIC,
+        audio_record = autoclass('android.media.AudioRecord')(
+            autoclass('android.media.MediaRecorder$AudioSource').MIC,
             sample_rate,
             channel_config,
             audio_format,
             buffer_size
         )
+
         print("Registrazione in corso...")
-            # Avvia la registrazione audio
-        print(audio_record.__dict__)
+        # Avvia la registrazione audio
         audio_record.startRecording()
+
+    def request_permissions(self):
+        permission = Permission.RECORD_AUDIO
+        request_permissions([permission])
+
+        # Verifica se i permessi sono stati concessi
+        if permission in self.get_granted_permissions():
+            pass  # I permessi sono stati concessi
+        else:
+            pass  # Gestisci il caso in cui i permessi non sono stati concessi
+
+    def get_granted_permissions(self):
+        PythonActivity = autoclass('org.kivy.android.PythonActivity')
+        context = PythonActivity.mActivity
+
+        PackageManager = autoclass('android.content.pm.PackageManager')
+        package_manager = context.getPackageManager()
+
+        permissions = autoclass('android.Manifest$permission')
+        granted_permissions = []
+
+        for permission in Permission:
+            if package_manager.checkPermission(permission, context.getPackageName()) == PackageManager.PERMISSION_GRANTED:
+                granted_permissions.append(permission)
+
+        return granted_permissions
 
 if __name__ == "__main__":
     sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
