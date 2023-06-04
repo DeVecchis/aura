@@ -61,7 +61,6 @@ class AuraApp(MDApp):
         # Avvia la registrazione audio
         audio_record.startRecording()
         time.sleep(7)
-        audio_record.stop()
         # Esegui il riconoscimento vocale in un ciclo continuo
         # Acquisisci i dati audio
         audio_record.read(audio_buffer, 0, buffer_size)
