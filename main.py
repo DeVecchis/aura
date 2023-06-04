@@ -77,7 +77,7 @@ class AuraApp(MDApp):
         audio_data = bytes(audio_buffer)
 
         # Crea un oggetto AudioData utilizzando i dati audio
-        audio = sr.AudioData(audio_data, sample_rate)
+        audio = sr.AudioData(audio_data, sample_rate, sample_width=2)
 
         # Utilizza SpeechRecognition per il riconoscimento vocale
         recognizer = sr.Recognizer()
