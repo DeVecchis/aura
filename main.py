@@ -4,6 +4,7 @@ from threading import Thread
 import time
 import socketio
 import pyttsx3
+import speech_recognition as sr
 from jnius import autoclass
 
 sio = socketio.Client()
