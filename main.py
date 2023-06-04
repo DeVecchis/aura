@@ -38,10 +38,6 @@ class AuraApp(MDApp):
         AudioRecord = autoclass('android.media.AudioRecord')
         AudioFormat = autoclass('android.media.AudioFormat')
         AudioSource = autoclass('android.media.MediaRecorder$AudioSource')
-        Environment = autoclass('android.os.Environment')
-        print("--------------------------------")
-        print(AudioRecord.__dict__)
-        print("--------------------------------")
         # Inizializza PyJNIus
         autoclass('org.kivy.android.PythonActivity').mActivity
 
@@ -55,72 +51,73 @@ class AuraApp(MDApp):
         print(channel_config)
         # Inizializza l'oggetto AudioRecord per l'acquisizione audio
         audio_record = AudioRecord(
-            AudioSource.MIC,
+        AudioSource.MIC,
             sample_rate,
             channel_config,
             audio_format,
             buffer_size
         )
-        print("Registrazione in corso...")
-            # Avvia la registrazione audio
-        print(audio_record.__dict__)
-        audio_record.startRecording()
-         # Crea un buffer per i dati audio
+
+        # Crea un buffer per i dati audio
         audio_buffer = bytearray(buffer_size)
 
-        # Acquisisci i dati audio fino a quando desideri
-        # Puoi eseguire questa parte in un ciclo o come callback
-        audio_record.read(audio_buffer, 0, buffer_size)
+        # Avvia la registrazione audio
+        audio_record.startRecording()
 
-
-        # Converte i dati audio in formato utilizzabile da SpeechRecognition
-        audio_data = bytes(audio_buffer)
-
-        # Crea un oggetto AudioData utilizzando i dati audio
-        audio = sr.AudioData(audio_data, sample_rate, sample_width=2)
-
-        # Utilizza SpeechRecognition per il riconoscimento vocale
+        # Configura il riconoscimento vocale con speech_recognition
         recognizer = sr.Recognizer()
 
-        # Converte l'audio in testo utilizzando speech_recognition
-        try:
-            text = recognizer.recognize_google(audio, language="it-IT")
-        except sr.UnknownValueError:
-            print("Impossibile convertire l'audio in testo.")
-        except sr.RequestError as e:
-            print("Errore durante la richiesta al servizio di riconoscimento vocale:", str(e))
+        # Esegui il riconoscimento vocale in un ciclo continuo
+        while True:
+            # Acquisisci i dati audio
+            audio_record.read(audio_buffer, 0, buffer_size)
 
-        # Dividi la trascrizione in parole
-        words = text.split()
+            # Converte i dati audio in formato utilizzabile da SpeechRecognition
+            audio_data = bytes(audio_buffer)
 
-        aura_index = ''
-        # Verifica se la parola "Aura" è stata pronunciata
-        if "Maura" in words:
-            aura_index = words.index("Maura")
-        elif "Aura" in words:
-            aura_index = words.index("Aura")
-        elif "Laura" in words:
-            aura_index = words.index("Laura")
+            # Crea un oggetto AudioData utilizzando i dati audio
+            audio = sr.AudioData(audio_data, sample_rate, sample_width=2)
 
-        if aura_index:
-            # Estrai le parole successive alla parola "Aura"
-            aura_words = words[aura_index + 1:]
+            # Converte l'audio in testo utilizzando speech_recognition
+            try:
+                text = recognizer.recognize_google(audio, language="it-IT")
+                print("Testo riconosciuto:", text)
+            except sr.UnknownValueError:
+                print("Impossibile convertire l'audio in testo.")
+            except sr.RequestError as e:
+                print("Errore durante la richiesta al servizio di riconoscimento vocale:", str(e))
 
-            # Stampa le parole dopo la parola "Aura" fino a quando non passano più di 3 secondi tra una parola e l'altra
-            for word in aura_words:
-                print(" ".join(aura_words))
-                sentence = " ".join(aura_words)
-                print(sentence)
+            # Dividi la trascrizione in parole
+            words = text.split()
 
-                # Invia la variabile al server
-                sio.emit('sentence', sentence)
+            aura_index = ''
+            # Verifica se la parola "Aura" è stata pronunciata
+            if "Maura" in words:
+                aura_index = words.index("Maura")
+            elif "Aura" in words:
+                aura_index = words.index("Aura")
+            elif "Laura" in words:
+                aura_index = words.index("Laura")
 
-                # # Verifica se è passato più di 3 secondi tra una parola e l'altra
-                # current_time = time.time()
-                # if current_time - self.last_word_time > 3:
-                #     break
+            if aura_index:
+                # Estrai le parole successive alla parola "Aura"
+                aura_words = words[aura_index + 1:]
 
-                # self.last_word_time = current_time
+                # Stampa le parole dopo la parola "Aura" fino a quando non passano più di 3 secondi tra una parola e l'altra
+                for word in aura_words:
+                    print(" ".join(aura_words))
+                    sentence = " ".join(aura_words)
+                    print(sentence)
+
+                    # Invia la variabile al server
+                    sio.emit('sentence', sentence)
+
+                    # # Verifica se è passato più di 3 secondi tra una parola e l'altra
+                    # current_time = time.time()
+                    # if current_time - self.last_word_time > 3:
+                    #     break
+
+                    # self.last_word_time = current_time
 
 
     def on_stop(self):
