@@ -84,7 +84,7 @@ class AuraApp(MDApp):
 
         # Converte l'audio in testo utilizzando speech_recognition
         try:
-            text = recognizer.recognize_google(audio, language="it-IT",output_format='json')
+            text = recognizer.recognize_google(audio, language="it-IT")
         except sr.UnknownValueError:
             print("Impossibile convertire l'audio in testo.")
         except sr.RequestError as e:
