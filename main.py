@@ -41,7 +41,7 @@ class AuraApp(MDApp):
         # Imposta i parametri audio per l'acquisizione
         sample_rate = 16000  # Frequenza di campionamento in Hz
         channel_config = AudioFormat.CHANNEL_IN_MONO
-        audio_format = AudioFormat.WAV
+        audio_format = AudioFormat.ENCODING_PCM_16BIT
         buffer_size = AudioRecord.getMinBufferSize(sample_rate, channel_config, audio_format)
         print(buffer_size)
         print(audio_format)
