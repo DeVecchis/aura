@@ -1,6 +1,7 @@
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from threading import Thread
+import androidhelper
 import time
 import socketio
 import pyttsx3
@@ -33,64 +34,41 @@ class AuraApp(MDApp):
         return kv
 
     def listen_for_speech(self):
-        # Configura il riconoscimento vocale con speech_recognition
+
+        # Configura il riconoscimento vocale con SpeechRecognition
         recognizer = sr.Recognizer()
 
-        # Importa le classi Java necessarie
-        AudioRecord = autoclass('android.media.AudioRecord')
-        AudioFormat = autoclass('android.media.AudioFormat')
-        AudioSource = autoclass('android.media.MediaRecorder$AudioSource')
-        # Inizializza PyJNIus
-        autoclass('org.kivy.android.PythonActivity').mActivity
+        # Crea un oggetto Android
+        droid = androidhelper.Android()
 
         # Imposta i parametri audio per l'acquisizione
         sample_rate = 16000  # Frequenza di campionamento in Hz
-        channel_config = AudioFormat.CHANNEL_IN_MONO
-        audio_format = AudioFormat.ENCODING_PCM_16BIT
-        buffer_size = AudioRecord.getMinBufferSize(sample_rate, channel_config, audio_format)
-        print(buffer_size)
-        print(audio_format)
-        print(channel_config)
-        # Inizializza l'oggetto AudioRecord per l'acquisizione audio
-        audio_record = AudioRecord(
-        AudioSource.MIC,
-            sample_rate,
-            channel_config,
-            audio_format,
-            buffer_size
-        )
+        sample_width = 2  # Dimensione del campione in byte (16-bit = 2 byte)
+        channels = 1  # Numero di canali audio (mono)
 
-        # Crea un buffer per i dati audio
-        audio_buffer = bytearray(buffer_size)
+        # Calcola la dimensione del buffer audio in base alla frequenza di campionamento
+        buffer_size = int(sample_rate * sample_width * channels)
 
-        # Avvia la registrazione audio
-        audio_record.startRecording()
+        # Avvia la registrazione audio utilizzando MediaRecorder
+        droid.recorderStartMicrophone()
 
-        # Configura il riconoscimento vocale con speech_recognition
-        recognizer = sr.Recognizer()
-
-        # Esegui il riconoscimento vocale in un ciclo continuo
+        # Avvia il riconoscimento vocale in tempo reale
         while True:
-            # Acquisisci i dati audio
-            audio_record.read(audio_buffer, 0, buffer_size)
-
-            # Converte i dati audio in formato utilizzabile da SpeechRecognition
-            audio_data = bytes(audio_buffer)
+            # Ottieni i dati audio in tempo reale
+            audio_data = droid.recorderRead(buffer_size)[1]  # Legge il buffer di dati audio
 
             # Crea un oggetto AudioData utilizzando i dati audio
-            audio = sr.AudioData(audio_data, sample_rate, sample_width=2)
+            audio = sr.AudioData(audio_data, sample_rate, sample_width)
 
-            # Converte l'audio in testo utilizzando speech_recognition
+            # Utilizza SpeechRecognition per il riconoscimento vocale
             try:
-                audio_wav = AudioSegment.from_file(io.BytesIO(audio.get_wav_data()))
-                text = recognizer.recognize_google(audio_wav, language="it-IT")
+                text = recognizer.recognize_google(audio, language="it-IT")
                 print("Testo riconosciuto:", text)
             except sr.UnknownValueError:
                 print("Impossibile convertire l'audio in testo.")
             except sr.RequestError as e:
                 print("Errore durante la richiesta al servizio di riconoscimento vocale:", str(e))
-
-            # Dividi la trascrizione in parole
+                    # Dividi la trascrizione in parole
             words = text.split()
 
             aura_index = ''
