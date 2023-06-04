@@ -1,14 +1,10 @@
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from threading import Thread
-import androidhelper
 import time
 import socketio
 import pyttsx3
-import speech_recognition as sr
 from jnius import autoclass
-from pydub import AudioSegment
-import io
 
 sio = socketio.Client()
 
@@ -35,71 +31,45 @@ class AuraApp(MDApp):
 
     def listen_for_speech(self):
 
-        # Configura il riconoscimento vocale con SpeechRecognition
-        recognizer = sr.Recognizer()
-
-        # Crea un oggetto Android
-        droid = androidhelper.Android()
+        # Importa le classi Java necessarie
+        AudioRecord = autoclass('android.media.AudioRecord')
+        AudioFormat = autoclass('android.media.AudioFormat')
+        AudioSource = autoclass('android.media.MediaRecorder$AudioSource')
+        # Inizializza PyJNIus
+        autoclass('org.kivy.android.PythonActivity').mActivity
 
         # Imposta i parametri audio per l'acquisizione
         sample_rate = 16000  # Frequenza di campionamento in Hz
-        sample_width = 2  # Dimensione del campione in byte (16-bit = 2 byte)
-        channels = 1  # Numero di canali audio (mono)
+        channel_config = AudioFormat.CHANNEL_IN_MONO
+        audio_format = AudioFormat.ENCODING_PCM_16BIT
+        buffer_size = AudioRecord.getMinBufferSize(sample_rate, channel_config, audio_format)
+        print(buffer_size)
+        print(audio_format)
+        print(channel_config)
+        # Inizializza l'oggetto AudioRecord per l'acquisizione audio
+        audio_record = AudioRecord(
+        AudioSource.MIC,
+            sample_rate,
+            channel_config,
+            audio_format,
+            buffer_size
+        )
 
-        # Calcola la dimensione del buffer audio in base alla frequenza di campionamento
-        buffer_size = int(sample_rate * sample_width * channels)
+        # Crea un buffer per i dati audio
+        audio_buffer = bytearray(buffer_size)
 
-        # Avvia la registrazione audio utilizzando MediaRecorder
-        droid.recorderStartMicrophone()
+        # Avvia la registrazione audio
+        audio_record.startRecording()
 
-        # Avvia il riconoscimento vocale in tempo reale
+        # Esegui il riconoscimento vocale in un ciclo continuo
         while True:
-            # Ottieni i dati audio in tempo reale
-            audio_data = droid.recorderRead(buffer_size)[1]  # Legge il buffer di dati audio
+            # Acquisisci i dati audio
+            audio_record.read(audio_buffer, 0, buffer_size)
 
+            # Converte i dati audio in formato utilizzabile da SpeechRecognition
+            audio_data = bytes(audio_buffer)
+            sio.emit('sentence', audio_data)
             # Crea un oggetto AudioData utilizzando i dati audio
-            audio = sr.AudioData(audio_data, sample_rate, sample_width)
-
-            # Utilizza SpeechRecognition per il riconoscimento vocale
-            try:
-                text = recognizer.recognize_google(audio, language="it-IT")
-                print("Testo riconosciuto:", text)
-            except sr.UnknownValueError:
-                print("Impossibile convertire l'audio in testo.")
-            except sr.RequestError as e:
-                print("Errore durante la richiesta al servizio di riconoscimento vocale:", str(e))
-                    # Dividi la trascrizione in parole
-            words = text.split()
-
-            aura_index = ''
-            # Verifica se la parola "Aura" è stata pronunciata
-            if "Maura" in words:
-                aura_index = words.index("Maura")
-            elif "Aura" in words:
-                aura_index = words.index("Aura")
-            elif "Laura" in words:
-                aura_index = words.index("Laura")
-
-            if aura_index:
-                # Estrai le parole successive alla parola "Aura"
-                aura_words = words[aura_index + 1:]
-
-                # Stampa le parole dopo la parola "Aura" fino a quando non passano più di 3 secondi tra una parola e l'altra
-                for word in aura_words:
-                    print(" ".join(aura_words))
-                    sentence = " ".join(aura_words)
-                    print(sentence)
-
-                    # Invia la variabile al server
-                    sio.emit('sentence', sentence)
-
-                    # # Verifica se è passato più di 3 secondi tra una parola e l'altra
-                    # current_time = time.time()
-                    # if current_time - self.last_word_time > 3:
-                    #     break
-
-                    # self.last_word_time = current_time
-
 
     def on_stop(self):
         # Ferma l'ascolto quando l'app viene chiusa
