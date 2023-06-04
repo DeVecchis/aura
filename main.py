@@ -54,22 +54,25 @@ class AuraApp(MDApp):
             audio_format,
             buffer_size
         )
-
+        
         # Crea un buffer per i dati audio
         audio_buffer = bytearray(buffer_size)
 
         # Avvia la registrazione audio
         audio_record.startRecording()
-
+        time.sleep(7)
+        audio_record.stop()
         # Esegui il riconoscimento vocale in un ciclo continuo
-        while True:
-            # Acquisisci i dati audio
-            audio_record.read(audio_buffer, 0, buffer_size)
-
-            # Converte i dati audio in formato utilizzabile da SpeechRecognition
-            audio_data = bytes(audio_buffer)
-            sio.emit('sentence', audio_data)
-            time.sleep(5)
+        # Acquisisci i dati audio
+        audio_record.read(audio_buffer, 0, buffer_size)
+        
+        # Converte i dati audio in formato utilizzabile da SpeechRecognition
+        audio_data = bytes(audio_buffer)
+        print(audio_buffer)
+        print("-----------------------------------")
+        print(audio_data)
+        sio.emit('sentence', audio_data)
+            
             # Crea un oggetto AudioData utilizzando i dati audio
 
     def on_stop(self):
