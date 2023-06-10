@@ -73,7 +73,7 @@ class AuraApp(MDApp):
             audio_data = bytes(audio_buffer)
             print(audio_data)
             sio.emit('sentence', audio_data)
-            time.sleep(5)
+            time.sleep(3)
             # Crea un oggetto AudioData utilizzando i dati audio
 
     def on_stop(self):
