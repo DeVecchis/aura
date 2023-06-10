@@ -42,7 +42,10 @@ class AuraApp(MDApp):
         sample_rate = 16000  # Frequenza di campionamento in Hz
         channel_config = AudioFormat.CHANNEL_IN_MONO
         audio_format = AudioFormat.ENCODING_PCM_16BIT
-        buffer_size = AudioRecord.getMinBufferSize(sample_rate, channel_config, audio_format)
+        duration_in_seconds = 7
+        bytes_per_sample = 2
+        num_channels = 1
+        buffer_size = sample_rate * bytes_per_sample * num_channels * duration_in_seconds
         print(buffer_size)
         print(audio_format)
         print(channel_config)
@@ -70,7 +73,7 @@ class AuraApp(MDApp):
             audio_data = bytes(audio_buffer)
             print(audio_data)
             sio.emit('sentence', audio_data)
-            time.sleep(7)
+            time.sleep(5)
             # Crea un oggetto AudioData utilizzando i dati audio
 
     def on_stop(self):
