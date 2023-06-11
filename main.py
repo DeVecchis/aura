@@ -90,7 +90,8 @@ class AuraApp(MDApp):
 
         # Crea un'istanza della classe TextToSpeech di Android
         TextToSpeech = autoclass('android.speech.tts.TextToSpeech')
-        tts = TextToSpeech(mActivity, None)
+        OnInitListener = autoclass('android.speech.tts.TextToSpeech$OnInitListener')
+        tts = TextToSpeech(mActivity, OnInitListener)
 
         # Imposta la lingua di default per la sintesi vocale
         Locale = autoclass('java.util.Locale')
@@ -100,6 +101,7 @@ class AuraApp(MDApp):
         voices = tts.getVoices()
         for voice in voices:
             if 'female' in voice.getName().lower():
+                print("impostata voce femminile")
                 tts.setVoice(voice)
                 break
         # Esegui la sintesi vocale del testo
