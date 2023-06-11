@@ -97,14 +97,18 @@ class AuraApp(MDApp):
         tts.setLanguage(Locale.getDefault())
 
         # Imposta la voce femminile
-        voices = tts.getVoices()
-        print(voices)
-        for voice in voices:
-            print(voice.getName().lower())
-            if 'female' in voice.getName().lower():
-                print("impostata voce femminile")
-                tts.setVoice(voice)
-                break
+        result = tts.isLanguageAvailable(Locale.getDefault())
+        print(result)
+        if result == TextToSpeech.LANG_AVAILABLE:
+            # Lingua supportata, ottieni le voci disponibili
+            voices = tts.getVoices()
+            if voices:
+                for voice in voices:
+                    if 'female' in voice.getName().lower():
+                        tts.setVoice(voice)
+                        break
+        else:
+            print("La lingua corrente non è supportata dal motore Text-to-Speech.")
         # Esegui la sintesi vocale del testo
         tts.speak(response, TextToSpeech.QUEUE_FLUSH, None, None)
         print("sono dopo tutto")
