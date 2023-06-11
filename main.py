@@ -83,35 +83,17 @@ class AuraApp(MDApp):
     @sio.on('response')
     def receive_response(response):
         print("Risposta dal server:", response)
-
-        # Inizializza PyJNIus
-        PythonActivity = autoclass('org.kivy.android.PythonActivity')
-        mActivity = PythonActivity.mActivity
-
-        # Crea un'istanza della classe TextToSpeech di Android
-        TextToSpeech = autoclass('android.speech.tts.TextToSpeech')
-        tts = TextToSpeech(mActivity, None)
-        print("sono qui")
-        # Imposta la lingua di default per la sintesi vocale
-        Locale = autoclass('java.util.Locale')
-        tts.setLanguage(Locale.getDefault())
-
-        # Imposta la voce femminile
-        result = tts.isLanguageAvailable(Locale.getDefault())
-        print(result)
-        if result == TextToSpeech.LANG_AVAILABLE:
-            # Lingua supportata, ottieni le voci disponibili
-            voices = tts.getVoices()
-            if voices:
-                for voice in voices:
-                    if 'female' in voice.getName().lower():
-                        tts.setVoice(voice)
-                        break
-        else:
-            print("La lingua corrente non è supportata dal motore Text-to-Speech.")
-        # Esegui la sintesi vocale del testo
-        tts.speak(response, TextToSpeech.QUEUE_FLUSH, None, None)
-        print("sono dopo tutto")
+        # Esegui le operazioni necessarie con la risposta
+        # Riproduci la risposta tramite sintesi vocale
+        engine = pyttsx3.init()
+        
+        # Imposta la voce femminile in italiano
+        engine.setProperty('voice', 'it')
+        
+        engine.setProperty('rate', 150)  # Velocità della voce (default: 200)
+        engine.say(response)
+        engine.runAndWait()
+        engine.stop()
 
 if __name__ == "__main__":
     sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
