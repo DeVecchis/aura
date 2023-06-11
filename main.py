@@ -90,7 +90,6 @@ class AuraApp(MDApp):
 
         # Crea un'istanza della classe TextToSpeech di Android
         TextToSpeech = autoclass('android.speech.tts.TextToSpeech')
-        #OnInitListener = autoclass('android.speech.tts.TextToSpeech$OnInitListener')
         tts = TextToSpeech(mActivity, None)
         print("sono qui")
         # Imposta la lingua di default per la sintesi vocale
@@ -99,7 +98,9 @@ class AuraApp(MDApp):
 
         # Imposta la voce femminile
         voices = tts.getVoices()
+        print(voices)
         for voice in voices:
+            print(voice.getName().lower())
             if 'female' in voice.getName().lower():
                 print("impostata voce femminile")
                 tts.setVoice(voice)
@@ -107,6 +108,7 @@ class AuraApp(MDApp):
         # Esegui la sintesi vocale del testo
         tts.speak(response, TextToSpeech.QUEUE_FLUSH, None, None)
         print("sono dopo tutto")
+
 if __name__ == "__main__":
     sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
     AuraApp().run()
