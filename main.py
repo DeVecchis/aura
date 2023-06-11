@@ -18,6 +18,7 @@ class AuraApp(MDApp):
     # Imposta la lingua di default per la sintesi vocale
     Locale = autoclass('java.util.Locale')
     tts.setLanguage(Locale('it', 'IT'))
+    tts.setSpeechRate(1.5)
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
@@ -56,7 +57,7 @@ class AuraApp(MDApp):
         sample_rate = 16000  # Frequenza di campionamento in Hz
         channel_config = AudioFormat.CHANNEL_IN_MONO
         audio_format = AudioFormat.ENCODING_PCM_16BIT
-        duration_in_seconds = 3
+        duration_in_seconds = 7
         bytes_per_sample = 2
         num_channels = 1
         buffer_size = sample_rate * bytes_per_sample * num_channels * duration_in_seconds
@@ -86,7 +87,7 @@ class AuraApp(MDApp):
             # Converte i dati audio in formato utilizzabile da SpeechRecognition
             audio_data = bytes(audio_buffer)
             sio.emit('sentence', audio_data)
-            time.sleep(1.5)
+            time.sleep(3)
             # Crea un oggetto AudioData utilizzando i dati audio
 
     def on_stop(self):
@@ -100,6 +101,8 @@ class AuraApp(MDApp):
         AuraApp.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
         while AuraApp.tts.isSpeaking():
             time.sleep(0.5)
+        AuraApp.tts.shutdown()
+
         print("sono dopo tutto")
 
 if __name__ == "__main__":
