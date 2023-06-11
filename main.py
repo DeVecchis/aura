@@ -94,10 +94,10 @@ class AuraApp(MDApp):
     @sio.on('response')
     def receive_response(response):
         print("Risposta dal server:", response)
-        AuraApp.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
-        while AuraApp.tts.isSpeaking():
+        self.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
+        while self.tts.isSpeaking():
             time.sleep(0.5)
-        AuraApp.tts.shutdown()
+        self.tts.shutdown()
 
         print("sono dopo tutto")
 
