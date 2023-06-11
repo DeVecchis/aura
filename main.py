@@ -92,7 +92,7 @@ class AuraApp(MDApp):
         TextToSpeech = autoclass('android.speech.tts.TextToSpeech')
         OnInitListener = autoclass('android.speech.tts.TextToSpeech$OnInitListener')
         tts = TextToSpeech(mActivity, OnInitListener)
-
+        print("sono qui")
         # Imposta la lingua di default per la sintesi vocale
         Locale = autoclass('java.util.Locale')
         tts.setLanguage(Locale.getDefault())
@@ -106,7 +106,7 @@ class AuraApp(MDApp):
                 break
         # Esegui la sintesi vocale del testo
         tts.speak(response, TextToSpeech.QUEUE_FLUSH, None, None)
-
+        print("sono dopo tutto")
 if __name__ == "__main__":
     sio.connect('http://10.10.10.200:8000')  # Connessione al server Flask
     AuraApp().run()
