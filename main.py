@@ -9,20 +9,23 @@ from jnius import autoclass
 sio = socketio.Client()
 
 class AuraApp(MDApp):
+
+    # Inizializza PyJNIus
+    PythonActivity = autoclass('org.kivy.android.PythonActivity')
+    mActivity = PythonActivity.mActivity
+    TextToSpeech = autoclass('android.speech.tts.TextToSpeech')
+    tts = TextToSpeech(mActivity, None)
+    # Imposta la lingua di default per la sintesi vocale
+    Locale = autoclass('java.util.Locale')
+    tts.setLanguage(Locale('it', 'IT'))
+
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "DeepPurple"
 
-        # Inizializza PyJNIus
-        self.PythonActivity = autoclass('org.kivy.android.PythonActivity')
-        self.mActivity = self.PythonActivity.mActivity
-
         # Crea un'istanza della classe TextToSpeech di Android
-        self.TextToSpeech = autoclass('android.speech.tts.TextToSpeech')
-        self.tts = self.TextToSpeech(self.mActivity, None)
-        # Imposta la lingua di default per la sintesi vocale
-        Locale = autoclass('java.util.Locale')
-        self.tts.setLanguage(Locale('it', 'IT'))
+
+        
 
         kv = Builder.load_file("aura.kv")
         label = kv.ids.label
@@ -90,13 +93,14 @@ class AuraApp(MDApp):
         # Ferma l'ascolto quando l'app viene chiusa
         pass
 
+    @staticmethod
     @sio.on('response')
-    def receive_response(self, response):
+    def receive_response(response):
         print("Risposta dal server:", response)
-        self.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
-        while self.tts.isSpeaking():
+        AuraApp.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
+        while AuraApp.tts.isSpeaking():
             time.sleep(0.5)
-        self.tts.shutdown()
+        AuraApp.tts.shutdown()
 
         print("sono dopo tutto")
 
