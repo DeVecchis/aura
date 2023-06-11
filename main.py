@@ -13,6 +13,17 @@ class AuraApp(MDApp):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "DeepPurple"
 
+        # Inizializza PyJNIus
+        self.PythonActivity = autoclass('org.kivy.android.PythonActivity')
+        self.mActivity = self.PythonActivity.mActivity
+
+        # Crea un'istanza della classe TextToSpeech di Android
+        self.TextToSpeech = autoclass('android.speech.tts.TextToSpeech')
+        self.tts = self.TextToSpeech(self.mActivity, None)
+        # Imposta la lingua di default per la sintesi vocale
+        Locale = autoclass('java.util.Locale')
+        self.tts.setLanguage(Locale('it', 'IT'))
+
         kv = Builder.load_file("aura.kv")
         label = kv.ids.label
 
@@ -83,37 +94,11 @@ class AuraApp(MDApp):
     @sio.on('response')
     def receive_response(response):
         print("Risposta dal server:", response)
-
-        # Inizializza PyJNIus
-        PythonActivity = autoclass('org.kivy.android.PythonActivity')
-        mActivity = PythonActivity.mActivity
-
-        # Crea un'istanza della classe TextToSpeech di Android
-        TextToSpeech = autoclass('android.speech.tts.TextToSpeech')
-        tts = TextToSpeech(mActivity, None)
-        print("sono qui")
-        # Imposta la lingua di default per la sintesi vocale
-        Locale = autoclass('java.util.Locale')
-        tts.setLanguage(Locale('it', 'IT'))
-
-        # Imposta la voce femminile
-        # result = tts.isLanguageAvailable(Locale.getDefault())
-        # print(result)
-        # if result == TextToSpeech.LANG_AVAILABLE:
-        #     # Lingua supportata, ottieni le voci disponibili
-        #     voices = tts.getVoices()
-        #     if voices:
-        #         for voice in voices:
-        #             if 'female' in voice.getName().lower():
-        #                 tts.setVoice(voice)
-        #                 break
-        # else:
-        #     print("La lingua corrente non è supportata dal motore Text-to-Speech.")
-        # Esegui la sintesi vocale del testo
-        tts.speak(response, TextToSpeech.QUEUE_FLUSH, None)
-        while tts.isSpeaking():
+        AuraApp.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
+        while AuraApp.tts.isSpeaking():
             time.sleep(0.5)
-        tts.shutdown()
+        AuraApp.tts.shutdown()
+
         print("sono dopo tutto")
 
 if __name__ == "__main__":
