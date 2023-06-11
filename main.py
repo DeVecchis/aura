@@ -57,7 +57,7 @@ class AuraApp(MDApp):
         sample_rate = 16000  # Frequenza di campionamento in Hz
         channel_config = AudioFormat.CHANNEL_IN_MONO
         audio_format = AudioFormat.ENCODING_PCM_16BIT
-        duration_in_seconds = 3
+        duration_in_seconds = 4
         bytes_per_sample = 2
         num_channels = 1
         buffer_size = sample_rate * bytes_per_sample * num_channels * duration_in_seconds
@@ -87,7 +87,7 @@ class AuraApp(MDApp):
             # Converte i dati audio in formato utilizzabile da SpeechRecognition
             audio_data = bytes(audio_buffer)
             sio.emit('sentence', audio_data)
-            time.sleep(2)
+            time.sleep(1.5)
             # Crea un oggetto AudioData utilizzando i dati audio
 
     def on_stop(self):
