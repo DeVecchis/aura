@@ -100,8 +100,6 @@ class AuraApp(MDApp):
         AuraApp.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
         while AuraApp.tts.isSpeaking():
             time.sleep(0.5)
-        AuraApp.tts.shutdown()
-
         print("sono dopo tutto")
 
 if __name__ == "__main__":
