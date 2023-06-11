@@ -111,6 +111,7 @@ class AuraApp(MDApp):
         #     print("La lingua corrente non è supportata dal motore Text-to-Speech.")
         # Esegui la sintesi vocale del testo
         tts.speak(response, TextToSpeech.QUEUE_FLUSH, None)
+        tts.shutdown()
         print("sono dopo tutto")
 
 if __name__ == "__main__":
