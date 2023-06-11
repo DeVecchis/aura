@@ -18,7 +18,7 @@ class AuraApp(MDApp):
     # Imposta la lingua di default per la sintesi vocale
     Locale = autoclass('java.util.Locale')
     tts.setLanguage(Locale('it', 'IT'))
-    tts.setSpeechRate(1.5)
+    tts.setSpeechRate(1.2)
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
