@@ -90,8 +90,8 @@ class AuraApp(MDApp):
 
         # Crea un'istanza della classe TextToSpeech di Android
         TextToSpeech = autoclass('android.speech.tts.TextToSpeech')
-        OnInitListener = autoclass('android.speech.tts.TextToSpeech$OnInitListener')
-        tts = TextToSpeech(mActivity, OnInitListener)
+        #OnInitListener = autoclass('android.speech.tts.TextToSpeech$OnInitListener')
+        tts = TextToSpeech(mActivity, None)
         print("sono qui")
         # Imposta la lingua di default per la sintesi vocale
         Locale = autoclass('java.util.Locale')
