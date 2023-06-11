@@ -90,7 +90,6 @@ class AuraApp(MDApp):
         # Ferma l'ascolto quando l'app viene chiusa
         pass
 
-    @staticmethod
     @sio.on('response')
     def receive_response(response):
         print("Risposta dal server:", response)
