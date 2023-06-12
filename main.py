@@ -107,15 +107,5 @@ class AuraApp(MDApp):
         print("sono dopo tutto")
 
 if __name__ == "__main__":
-    # Determina l'indirizzo IP dell'host
-    local_ip = socket.gethostbyname(socket.gethostname())
-    print(local_ip)
-    if local_ip.startswith("127.0.0."):
-        # Se l'indirizzo IP inizia con "10.10.10.", siamo nella rete locale
-        server_address = "10.10.10.200"
-    else:
-        # Altrimenti, siamo al di fuori della rete locale
-        server_address = "176.12.93.138"
-
-    sio.connect(f"http://{server_address}:8000")  # Connessione al server Flask
+    sio.connect("http://176.12.93.138:8000")  # Connessione al server Flask
     AuraApp().run()
