@@ -109,7 +109,7 @@ class AuraApp(MDApp):
 if __name__ == "__main__":
     # Determina l'indirizzo IP dell'host
     local_ip = socket.gethostbyname(socket.gethostname())
-
+    print(local_ip)
     if local_ip.startswith("10.10.10."):
         # Se l'indirizzo IP inizia con "10.10.10.", siamo nella rete locale
         server_address = "10.10.10.200"
