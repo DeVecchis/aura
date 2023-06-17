@@ -97,7 +97,7 @@ fullscreen = 0
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
-android.permissions = INTERNET, RECORD_AUDIO, TTS_SERVICE, WAKE_LOCK
+android.permissions = INTERNET, RECORD_AUDIO, TTS_SERVICE, WAKE_LOCK, MODIFY_AUDIO_SETTINGS
 # (int) Target Android API, should be as high as possible.
 android.api = 30
 
