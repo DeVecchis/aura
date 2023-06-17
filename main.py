@@ -98,6 +98,9 @@ class AuraApp(MDApp):
     @staticmethod
     @sio.on('response')
     def receive_response(response):
+        print("--------------------------------")
+        print("SONO IN RESPONSE")
+        print("--------------------------------")
         print("Risposta dal server:", response)
         AuraApp.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
         while AuraApp.tts.isSpeaking():
