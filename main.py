@@ -21,6 +21,7 @@ class AuraApp(MDApp):
     tts.setSpeechRate(1.2)
 
     def build(self):
+        Window.set_wakeup(True)
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "DeepPurple"
 
