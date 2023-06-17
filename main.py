@@ -19,6 +19,13 @@ class AuraApp(MDApp):
     Locale = autoclass('java.util.Locale')
     tts.setLanguage(Locale('it', 'IT'))
     tts.setSpeechRate(1.2)
+    PowerManager = autoclass('android.os.PowerManager')
+    PythonActivity = autoclass('org.kivy.android.PythonActivity')
+    activity = PythonActivity.mActivity
+
+    power_manager = activity.getSystemService(activity.POWER_SERVICE)
+    wake_lock = power_manager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLockTag")
+    wake_lock.acquire()
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
