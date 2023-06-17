@@ -5,6 +5,7 @@ import time
 import socketio
 from jnius import autoclass
 
+
 sio = socketio.Client()
 
 class AuraApp(MDApp):
@@ -13,7 +14,11 @@ class AuraApp(MDApp):
     PythonActivity = autoclass('org.kivy.android.PythonActivity')
     mActivity = PythonActivity.mActivity
     TextToSpeech = autoclass('android.speech.tts.TextToSpeech')
-    
+    tts = TextToSpeech(mActivity, None)
+    # Imposta la lingua di default per la sintesi vocale
+    Locale = autoclass('java.util.Locale')
+    tts.setLanguage(Locale('it', 'IT'))
+    tts.setSpeechRate(1.2)
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
@@ -96,18 +101,12 @@ class AuraApp(MDApp):
         print("SONO IN RESPONSE")
         print("--------------------------------")
         print("Risposta dal server:", response)
-        tts = AuraApp.TextToSpeech(AuraApp.mActivity, None)
-        # Imposta la lingua di default per la sintesi vocale
-        Locale = autoclass('java.util.Locale')
-        tts.setLanguage(Locale('it', 'IT'))
-        tts.setSpeechRate(1.2)
-        tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
-        print(tts.isSpeaking())
-        while tts.isSpeaking():
+        AuraApp.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
+        print(AuraApp.tts.isSpeaking())
+        while AuraApp.tts.isSpeaking():
             
             print("Sta parlando...")
             time.sleep(0.5)
-        tts.shutdown()
 
         print("sono dopo tutto")
 
