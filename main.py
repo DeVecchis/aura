@@ -3,9 +3,8 @@ from kivymd.app import MDApp
 from threading import Thread
 import time
 import socketio
-import pyttsx3
+import speech_recognition as sr
 from jnius import autoclass
-import socket
 
 sio = socketio.Client()
 
@@ -58,7 +57,7 @@ class AuraApp(MDApp):
         sample_rate = 16000  # Frequenza di campionamento in Hz
         channel_config = AudioFormat.CHANNEL_IN_MONO
         audio_format = AudioFormat.ENCODING_PCM_16BIT
-        duration_in_seconds = 4
+        duration_in_seconds = 6
         bytes_per_sample = 2
         num_channels = 1
         buffer_size = sample_rate * bytes_per_sample * num_channels * duration_in_seconds
@@ -87,8 +86,13 @@ class AuraApp(MDApp):
 
             # Converte i dati audio in formato utilizzabile da SpeechRecognition
             audio_data = bytes(audio_buffer)
-            sio.emit('sentence', audio_data)
-            time.sleep(1.5)
+            recognizer = sr.Recognizer()
+            sample_rate = 16000
+            audio = sr.AudioData(audio_data, sample_rate, sample_width=2)
+            text = recognizer.recognize_google(audio, language="it-IT")
+            print(text)
+            # sio.emit('sentence', audio_data)
+            time.sleep(3)
             # Crea un oggetto AudioData utilizzando i dati audio
 
     def on_stop(self):
@@ -107,5 +111,5 @@ class AuraApp(MDApp):
         print("sono dopo tutto")
 
 if __name__ == "__main__":
-    sio.connect("http://176.12.93.138:8000")  # Connessione al server Flask
+    sio.connect("http://10.10.10.200:8000")  # Connessione al server Flask
     AuraApp().run()
