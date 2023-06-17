@@ -3,8 +3,9 @@ from kivymd.app import MDApp
 from threading import Thread
 import time
 import socketio
-import speech_recognition as sr
+import pyttsx3
 from jnius import autoclass
+import socket
 
 sio = socketio.Client()
 
@@ -50,13 +51,14 @@ class AuraApp(MDApp):
         AudioRecord = autoclass('android.media.AudioRecord')
         AudioFormat = autoclass('android.media.AudioFormat')
         AudioSource = autoclass('android.media.MediaRecorder$AudioSource')
-        PyAudio = autoclass('org.kivy.android.PyAudio')
+        # Inizializza PyJNIus
+        autoclass('org.kivy.android.PythonActivity').mActivity
 
         # Imposta i parametri audio per l'acquisizione
         sample_rate = 16000  # Frequenza di campionamento in Hz
         channel_config = AudioFormat.CHANNEL_IN_MONO
         audio_format = AudioFormat.ENCODING_PCM_16BIT
-        duration_in_seconds = 6
+        duration_in_seconds = 4
         bytes_per_sample = 2
         num_channels = 1
         buffer_size = sample_rate * bytes_per_sample * num_channels * duration_in_seconds
@@ -85,30 +87,8 @@ class AuraApp(MDApp):
 
             # Converte i dati audio in formato utilizzabile da SpeechRecognition
             audio_data = bytes(audio_buffer)
-            # Utilizza PyJNIus per avviare il riconoscimento vocale di Android e ottenere il testo
-            RecognizerIntent = autoclass('android.speech.RecognizerIntent')
-            intent = RecognizerIntent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, 'it-IT')
-            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
-            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, False)
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1000)
-            # Avvia il riconoscimento vocale
-            activity = autoclass('org.kivy.android.PythonActivity').mActivity
-            recognizer = activity.startActivityForResult(intent, 0)
-
-            # Ottieni il testo risultante dal riconoscimento vocale
-            result_code = recognizer[0]
-            result_data = recognizer[1]
-            result_array = result_data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            if result_array:
-                text = result_array.get(0)
-            else:
-                text = ""
-
-            print("Testo riconosciuto:", text)
-            # sio.emit('sentence', audio_data)
-            time.sleep(3)
+            sio.emit('sentence', audio_data)
+            time.sleep(1.5)
             # Crea un oggetto AudioData utilizzando i dati audio
 
     def on_stop(self):
