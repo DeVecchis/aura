@@ -97,6 +97,11 @@ fullscreen = 0
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
+android.manifest.intent_filters = IntentFilter \
+    ('android.intent.action.MAIN', \
+    category='android.intent.category.LAUNCHER', \
+    priority='100')
+
 android.permissions = INTERNET, RECORD_AUDIO, TTS_SERVICE
 # (int) Target Android API, should be as high as possible.
 android.api = 30
