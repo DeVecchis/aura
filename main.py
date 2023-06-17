@@ -103,7 +103,10 @@ class AuraApp(MDApp):
         print("--------------------------------")
         print("Risposta dal server:", response)
         AuraApp.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
+        print(AuraApp.tts.isSpeaking())
         while AuraApp.tts.isSpeaking():
+            
+            print("Sta parlando...")
             time.sleep(0.5)
         AuraApp.tts.shutdown()
 
