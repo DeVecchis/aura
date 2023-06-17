@@ -102,12 +102,12 @@ class AuraApp(MDApp):
         tts.setLanguage(Locale('it', 'IT'))
         tts.setSpeechRate(1.2)
         tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
-        print(AuraApp.tts.isSpeaking())
-        while AuraApp.tts.isSpeaking():
+        print(tts.isSpeaking())
+        while tts.isSpeaking():
             
             print("Sta parlando...")
             time.sleep(0.5)
-        AuraApp.tts.shutdown()
+        tts.shutdown()
 
         print("sono dopo tutto")
 
