@@ -1,5 +1,4 @@
 from kivy.lang import Builder
-from kivy.core.window import Window
 from kivymd.app import MDApp
 from threading import Thread
 import time
@@ -24,8 +23,6 @@ class AuraApp(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "DeepPurple"
-
-        Window.set_wakeup(True)
         
 
         kv = Builder.load_file("aura.kv")
