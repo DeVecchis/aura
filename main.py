@@ -88,7 +88,7 @@ class AuraApp(MDApp):
             # Converte i dati audio in formato utilizzabile da SpeechRecognition
             audio_data = bytes(audio_buffer)
             sio.emit('sentence', audio_data)
-            time.sleep(2)
+            time.sleep(2.5)
             # Crea un oggetto AudioData utilizzando i dati audio
 
     def on_stop(self):
