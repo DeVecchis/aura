@@ -115,5 +115,5 @@ class AuraApp(MDApp):
         print("sono dopo tutto")
 
 if __name__ == "__main__":
-    sio.connect("http://10.10.10.200:8000")  # Connessione al server Flask
+    sio.connect("http://176.12.93.138:8000")  # Connessione al server Flask
     AuraApp().run()
