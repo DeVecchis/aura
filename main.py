@@ -114,7 +114,7 @@ class AuraApp(MDApp):
 import socket
 import netifaces
 
-def get_local_ip(self):
+def get_local_ip():
         # Ottieni l'indirizzo IP locale
         interfaces = netifaces.interfaces()
         for interface in interfaces:
