@@ -101,9 +101,6 @@ class AuraApp(MDApp):
     @staticmethod
     @sio.on('response')
     def receive_response(response):
-        print("--------------------------------")
-        print("SONO IN RESPONSE")
-        print("--------------------------------")
         print("Risposta dal server:", response)
         AuraApp.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
         print(AuraApp.tts.isSpeaking())
@@ -114,6 +111,20 @@ class AuraApp(MDApp):
 
         print("sono dopo tutto")
 
+import socket
+import netifaces
+
+def get_local_ip(self):
+        # Ottieni l'indirizzo IP locale
+        interfaces = netifaces.interfaces()
+        for interface in interfaces:
+            addresses = netifaces.ifaddresses(interface)
+            if netifaces.AF_INET in addresses:
+                for link in addresses[netifaces.AF_INET]:
+                    if 'addr' in link:
+                        return link['addr']
 if __name__ == "__main__":
+    local_ip = get_local_ip()
+    print(local_ip)
     sio.connect("http://176.12.93.138:8000")  # Connessione al server Flask
     AuraApp().run()
