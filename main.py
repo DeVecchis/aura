@@ -125,8 +125,8 @@ def get_local_ip():
                         return link['addr']
 if __name__ == "__main__":
     local_ip = get_local_ip()
-    if "10.10.10" in local_ip:
-        sio.connect("http://10.10.10.200:8000")
+    if "192.168.1." in local_ip:
+        sio.connect("http://192.168.1.183:8000")
     else:
-        sio.connect("http://176.12.93.138:8000")  # Connessione al server Flask
+        sio.connect("http://78.134.67.14:8000")  # Connessione al server Flask
     AuraApp().run()
