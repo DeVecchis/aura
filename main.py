@@ -125,6 +125,8 @@ def get_local_ip():
                         return link['addr']
 if __name__ == "__main__":
     local_ip = get_local_ip()
+    print("-----------------------------------------")
+    print(local_ip)
     if "192.168.1." in local_ip:
         sio.connect("http://192.168.1.183:8000")
     else:
