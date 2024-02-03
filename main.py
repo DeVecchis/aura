@@ -105,8 +105,8 @@ class AuraApp(MDApp):
     @sio.on('response')
     def receive_response(response):
         print("sono in response!!!!")
-        AuraApp.root.ids.spinner.active = False
-        AuraApp.root.ids.server_output.text = response
+        self.root.ids.spinner.active = False
+        self.root.ids.server_output.text = response
         AuraApp.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
         print(AuraApp.tts.isSpeaking())
         while AuraApp.tts.isSpeaking():
