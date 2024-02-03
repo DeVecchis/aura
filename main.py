@@ -95,9 +95,9 @@ class AuraApp(MDApp):
         self.root.ids.spinner.active = True
         self.audio_record.read(self.audio_buffer, 0, self.buffer_size)
         print("######################## AUDIO DATA ###########################")
-        print(audio_data)
         # Converte i dati audio in formato utilizzabile da SpeechRecognition
         audio_data = bytes(self.audio_buffer)
+        print(audio_data)
         sio.emit('sentence', audio_data)
         pass
 
