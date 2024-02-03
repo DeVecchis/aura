@@ -3,6 +3,7 @@ from kivymd.app import MDApp
 from threading import Thread
 import time
 import socketio
+from kivy.animation import Animation
 from jnius import autoclass
 
 
@@ -35,20 +36,24 @@ class AuraApp(MDApp):
         kv = Builder.load_file("aura.kv")
         label = kv.ids.label
 
-        label.font_size = 100
         label.center_x = kv.width / 2
         label.center_y = kv.height / 2
 
         self.last_word_time = time.time()
 
         # Avvia il riconoscimento vocale in un thread separato
-        thread = Thread(target=self.listen_for_speech)
+        thread = Thread(target=self.start_recording)
         thread.daemon = True
         thread.start()
 
         return kv
 
-    def listen_for_speech(self):
+    def start_recording(self):
+        """metto cose"""
+        print("sono in start recording:")
+        self.button_anim = Animation(size_hint=(0.12, 0.12), duration=0.5) + Animation(size_hint=(0.1, 0.1), duration=0.5)
+        self.button_anim.repeat = True
+        self.button_anim.start(self.root.ids.record_button)
 
         # Importa le classi Java necessarie
         AudioRecord = autoclass('android.media.AudioRecord')
@@ -64,51 +69,49 @@ class AuraApp(MDApp):
         duration_in_seconds = 4
         bytes_per_sample = 2
         num_channels = 1
-        buffer_size = sample_rate * bytes_per_sample * num_channels * duration_in_seconds
-        print(buffer_size)
-        print(audio_format)
+        self.buffer_size = sample_rate * bytes_per_sample * num_channels * duration_in_seconds
+        print("buffer_size",self.buffer_size)
+        print("audio_format",audio_format)
         print(channel_config)
         # Inizializza l'oggetto AudioRecord per l'acquisizione audio
-        audio_record = AudioRecord(
+        self.audio_record = AudioRecord(
         AudioSource.MIC,
             sample_rate,
             channel_config,
             audio_format,
-            buffer_size
+            self.buffer_size
         )
-
         # Crea un buffer per i dati audio
-        audio_buffer = bytearray(buffer_size)
-
+        self.audio_buffer = bytearray(self.buffer_size)
         # Avvia la registrazione audio
-        audio_record.startRecording()
+        self.audio_record.startRecording()
+        print("ho iniziato la registrazione")
 
-        # Esegui il riconoscimento vocale in un ciclo continuo
-        while True:
-            # Acquisisci i dati audio
-            audio_record.read(audio_buffer, 0, buffer_size)
-
-            # Converte i dati audio in formato utilizzabile da SpeechRecognition
-            audio_data = bytes(audio_buffer)
-            sio.emit('sentence', audio_data)
-            time.sleep(4)
-            # Crea un oggetto AudioData utilizzando i dati audio
-
-    def on_stop(self):
-        # Ferma l'ascolto quando l'app viene chiusa
+    def stop_recording(self):
+        print("sono in stop_recording")
+        self.audio_record.stop()
+        self.button_anim.stop(self.root.ids.record_button)
+        self.root.ids.record_button.size_hint = (0.09, 0.09)
+        self.root.ids.spinner.active = True
+        self.audio_record.read(self.audio_buffer, 0, self.buffer_size)
+        print("######################## AUDIO DATA ###########################")
+        print(audio_data)
+        # Converte i dati audio in formato utilizzabile da SpeechRecognition
+        audio_data = bytes(self.audio_buffer)
+        sio.emit('sentence', audio_data)
         pass
 
     @staticmethod
     @sio.on('response')
     def receive_response(response):
-        print("Risposta dal server:", response)
+        print("sono in response!!!!")
+        AuraApp.root.ids.spinner.active = False
+        AuraApp.root.ids.server_output.text = response
         AuraApp.tts.speak(response, AuraApp.TextToSpeech.QUEUE_FLUSH, None)
         print(AuraApp.tts.isSpeaking())
         while AuraApp.tts.isSpeaking():
-            
             print("Sta parlando...")
             time.sleep(0.5)
-
         print("sono dopo tutto")
 
 import socket
