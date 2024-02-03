@@ -18,3 +18,30 @@ BoxLayout:
         theme_text_color: "Secondary"
         size_hint_y: None
         height: self.texture_size[1]
+        font_size: 50
+
+    ScrollView:
+        MDLabel:
+            id: server_output
+            text: ""
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1  # Imposta il colore del testo a bianco
+            size_hint_y: None
+            height: self.texture_size[1]
+
+    MDSpinner:
+        id: spinner
+        size_hint: None, None
+        size: "48dp", "48dp"
+        pos_hint: {"center_x": .5}
+        # Imposta la visibilità iniziale a False
+        active: False
+
+    MDFloatingActionButton:
+        id: record_button
+        icon: "microphone"
+        md_bg_color: app.theme_cls.primary_color
+        pos_hint: {"center_x": .5}
+        size_hint: 0.09, 0.09
+        on_press: app.start_recording()
+        on_release: app.stop_recording()
