@@ -101,7 +101,6 @@ class AuraApp(MDApp):
         sio.emit('sentence', audio_data)
         pass
 
-    @staticmethod
     @sio.on('response')
     def receive_response(self,response):
         print("sono in response!!!!")
