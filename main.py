@@ -103,7 +103,7 @@ class AuraApp(MDApp):
 
     @staticmethod
     @sio.on('response')
-    def receive_response(response):
+    def receive_response(self,response):
         print("sono in response!!!!")
         self.root.ids.spinner.active = False
         self.root.ids.server_output.text = response
